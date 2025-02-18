@@ -18,13 +18,12 @@ const checkEmailExists = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-
 const signup = async (req, res) => {
-    const { name, lastname, birthDate, phone, email, password } = req.body;
+    const { name, lastName, birthDate, phone, email, password } = req.body; // 'lastName' ici
     const imagePath = req.file ? req.file.path : null; // Récupère le chemin de l'image téléchargée
 
     // Validation des champs nécessaires
-    if (!name || !lastname || !birthDate || !phone || !email || !password) {
+    if (!name || !lastName || !birthDate || !phone || !email || !password) {  // 'lastName' ici
         return res.status(400).json({ error: 'All fields are required' });
     }
 
@@ -41,10 +40,11 @@ const signup = async (req, res) => {
         // Créer un nouvel utilisateur
         const newUser = new User({
             name,
-            lastname,
+            lastName, // 'lastName' ici
             birthDate,
             phone,
             email,
+            typeUser: "user", // Ajouter le type d'utilisateur
             password: hashedPassword, // Mot de passe haché
             image: imagePath, // Ajouter l'image
         });
@@ -56,6 +56,7 @@ const signup = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
 
 
 const signin = async (req, res) => {

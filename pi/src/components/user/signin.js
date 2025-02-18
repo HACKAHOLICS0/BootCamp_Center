@@ -35,6 +35,7 @@ export default function Signin() {
         // On successful login, store the token (if needed) and redirect the user
         localStorage.setItem('token', data.token); // Assuming the API returns a JWT token
         localStorage.setItem('user', JSON.stringify(data.user));
+        window.dispatchEvent(new Event("userUpdated"));
         history('/profile'); // Redirect to the home page after successful login
       } else {
         setErrorDisplay(data.message || "Incorrect email or password");

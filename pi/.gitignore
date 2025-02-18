@@ -1,4 +1,14 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Ignorer tous les fichiers par défaut
+*
 
-# dependencies
-/node_modules
+# Ne pas ignorer les dossiers (garder la structure)
+!*/
+
+# Exclure node_modules et autres fichiers inutiles
+node_modules/
+.env
+dist/
+build/
+
+# Ne pas ignorer ce fichier pour que Git le garde
+!/.gitignore

@@ -12,9 +12,11 @@ const getImageUrl = (imagePath) => {
 const UserProfile = () => {
     const [user, setUser] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isInterestPointModalOpen, setIsInterestPointModalOpen] = useState(false); // Nouveau state pour le modal des points d'intérêt
     const [editableUser, setEditableUser] = useState({
         name: "", lastName: "", birthDate: "", email: "", phone: ""
     });
+    const [interestPoints, setInterestPoints] = useState([]); // Etat pour les points d'intérêt
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -34,7 +36,22 @@ const UserProfile = () => {
                 phone: user.phone || ""
             });
         }
-    }, [user]); // Cette useEffect ne s'exécutera que si `user` change
+    }, [user]);
+
+    useEffect(() => {
+        // Récupérer les points d'intérêt
+        const fetchInterestPoints = async () => {
+            try {
+                const response = await fetch(`${backendURL}/api/interest-points`);
+                const data = await response.json();
+                setInterestPoints(data);
+            } catch (error) {
+                console.error("Erreur lors de la récupération des points d'intérêt :", error);
+            }
+        };
+
+        fetchInterestPoints();
+    }, []);
 
     const handleEditUser = () => {
         setIsModalOpen(true);
@@ -68,15 +85,9 @@ const UserProfile = () => {
             const updatedUser = await response.json();
             console.log("Updated user received from backend:", updatedUser);
     
-            // Vérifie les données avant de les mettre à jour dans l'état
-            console.log("Current user data before state update:", user);
-            console.log("Editable User before state update:", editableUser);
-    
-            // Mettre à jour `user` immédiatement après la sauvegarde
             setUser(updatedUser);
             localStorage.setItem("user", JSON.stringify(updatedUser));
     
-            // Mettre à jour `editableUser` aussi
             setEditableUser({
                 name: updatedUser.name || "",
                 lastName: updatedUser.lastName || "",
@@ -85,8 +96,6 @@ const UserProfile = () => {
                 phone: updatedUser.phone || ""
             });
     
-            // Fermer le modal après la sauvegarde
-            console.log("Closing modal...");
             setIsModalOpen(false);
         } catch (error) {
             console.error("Error updating user:", error);
@@ -97,6 +106,15 @@ const UserProfile = () => {
     const closeModal = () => {
         setIsModalOpen(false);
     };
+
+    const closeInterestPointModal = () => {
+        setIsInterestPointModalOpen(false); // Fermer le modal des points d'intérêt
+    };
+
+    const openInterestPointModal = () => {
+        setIsInterestPointModalOpen(true); // Ouvrir le modal des points d'intérêt
+    };
+
     if (!user) {
         return (
             <div className="text-center mt-5">
@@ -164,30 +182,51 @@ const UserProfile = () => {
                                 </div>
                             </div>
                         )}
-                        {[{ title: "Points of Interest", data: user.refinterestpoints },
-                          { title: "Course Preferences", data: user.coursepreferences }].map((section, index) => (
-                            <div className="col-md-6 my-3" key={index}>
-                                <div className="card card-user mb-3">
-                                    <h4 className="text-center my-3">{section.title}</h4>
-                                    <hr />
-                                    <div className="card-body card-body-user">
-                                        {Array.isArray(section.data) && section.data.length > 0 ? (
-                                            section.data.map((item, i) => <p key={i}>{item}</p>)
-                                        ) : (
-                                            <p>No {section.title.toLowerCase()} available.</p>
-                                        )}
-                                    </div>
-                                    <div className="text-end mt-3 me-3">
-                                        <button className="edit-button">
-                                            <FontAwesomeIcon icon={faPlus} />
-                                        </button>
-                                    </div>
+
+                        {/* Afficher les points d'intérêt */}
+                        <div className="col-md-6 my-3">
+                            <div className="card card-user mb-3">
+                                <h4 className="text-center my-3">Points of Interest</h4>
+                                <hr />
+                                <div className="card-body card-body-user">
+                                    {interestPoints.length > 0 ? (
+                                        interestPoints.map((point, i) => <p key={i}>{point.value}</p>)
+                                    ) : (
+                                        <p>No points of interest available.</p>
+                                    )}
+                                </div>
+                                <div className="text-end mt-3 me-3">
+                                    <button className="edit-button" onClick={openInterestPointModal}>
+                                        <FontAwesomeIcon icon={faPlus} />
+                                    </button>
                                 </div>
                             </div>
-                        ))}
+                        </div>
+
                     </div>
                 </div>
             </div>
+
+            {/* Modal pour les points d'intérêt */}
+            {isInterestPointModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <span className="close" onClick={closeInterestPointModal}>&times;</span>
+                        <h4>Choose Points of Interest</h4>
+                        <ul>
+                            {interestPoints.map((point, index) => (
+                                <li key={index}>
+                                    <input type="checkbox" value={point.value} />
+                                    {point.value}
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="text-end mt-3">
+                            <button className="btn btn-success">Save Selection</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
