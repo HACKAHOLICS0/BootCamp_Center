@@ -10,5 +10,8 @@ node_modules/
 dist/
 build/
 
+# Ignorer uniquement le dossier user sous components
+src/components/user/
+
 # Ne pas ignorer ce fichier pour que Git le garde
 !/.gitignore
