@@ -1,0 +1,29 @@
+# Ignorer tous les fichiers par défaut
+*
+
+# Ne pas ignorer les dossiers (garder la structure)
+!*/
+
+# Ignorer tous les fichiers sous controllers, routes et uploads
+controllers/*
+routes/*
+uploads/*
+
+# Ne pas ignorer les dossiers (garder la structure vide dans Git)
+!controllers/
+!routes/
+!uploads/
+
+# Ne pas ignorer .gitkeep pour que Git garde les dossiers
+!controllers/.gitkeep
+!routes/.gitkeep
+!uploads/.gitkeep
+
+# Exclure node_modules et autres fichiers inutiles
+node_modules/
+.env
+dist/
+build/
+
+# Ne pas ignorer ce fichier pour que Git le garde
+!/.gitignore
