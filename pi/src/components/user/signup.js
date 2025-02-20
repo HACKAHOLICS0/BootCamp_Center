@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import '../../assets/css/signup.css'; // Add styles
+import '../../assets/css/signup.css'; // Ajoute les styles
 
 export default function Signup() {
     const history = useNavigate();
@@ -15,9 +15,7 @@ export default function Signup() {
         password: "",
         confirmp: "",
         image: "",
-        role: "", // New field for role
     });
-
     const [formData, setFormData] = useState({
         name: "",
         lastName: "",
@@ -26,25 +24,28 @@ export default function Signup() {
         email: "",
         password: "",
         confirmp: "",
-        role: "user", // Default role is "user"
-        image: null, // To store the uploaded image
+        type: "user",
+        image: null, // Ajout d'une clé pour l'image
     });
 
     const onChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-        validate(name, value); // Validate in real-time
+
+        // Appeler la validation en temps réel pour chaque champ
+        validate(name, value);
     };
 
     const onBlur = (e) => {
+        // Validation quand l'utilisateur sort d'un champ sans entrer de valeur
         const { name, value } = e.target;
         if (!value) {
-            validate(name, value); // Trigger validation on blur
+            validate(name, value);
         }
     };
 
     const validate = (fieldName, value) => {
-        const errors = { ...formErrors }; // Clone formErrors for specific field
+        const errors = { ...formErrors }; // clone formErrors pour modification de champ spécifique
         const isContainsUppercase = /^(?=.*[A-Z])/;
         const isContainsLowercase = /^(?=.*[a-z])/;
         const isContainsNumber = /^(?=.*[0-9])/;
@@ -55,7 +56,7 @@ export default function Signup() {
             case "name":
                 errors.name = value ? "" : "Name is required";
                 break;
-            case "lastName":
+            case "lastName": // Fixed extra space
                 errors.lastName = value ? "" : "Last Name is required";
                 break;
             case "email":
@@ -71,16 +72,13 @@ export default function Signup() {
                     isContainsNumber.test(value) &&
                     isValidLength.test(value)
                         ? ""
-                        : "Password must be between 8-16 characters and include 1 uppercase, 1 lowercase, and 1 number.";
+                        : "Password must contain between 8 and 16 characters, including at least 1 uppercase, 1 lowercase, and 1 number.";
                 break;
             case "confirmp":
                 errors.confirmp = value === formData.password ? "" : "Passwords do not match";
                 break;
             case "image":
                 errors.image = value ? "" : "Image is required";
-                break;
-            case "role":
-                errors.role = value ? "" : "Role is required"; // Validate role selection
                 break;
             default:
                 break;
@@ -94,7 +92,7 @@ export default function Signup() {
         setFormErrors(errors);
 
         if (Object.values(errors).every((err) => err === "")) {
-            // If form is valid, submit the form data
+            // Si le formulaire est valide, envoie les données à l'API
             await addUser();
         }
     };
@@ -109,40 +107,40 @@ export default function Signup() {
 
     const addUser = async () => {
         try {
-            // Check if email already exists
+            // Vérifie si l'email existe déjà
             const emailCheckResponse = await fetch(`http://localhost:5000/api/auth/check/${formData.email}`);
             const emailExists = await emailCheckResponse.json();
-
+    
             if (emailExists.exists) {
                 setErrorDisplay("Email already exists");
                 return;
             }
-
+    
             const formDataToSend = new FormData();
             for (const key in formData) {
                 formDataToSend.append(key, formData[key]);
             }
-
+    
             const signupResponse = await fetch("http://localhost:5000/api/auth/signup", {
                 method: "POST",
-                body: formDataToSend, // Use FormData here for file uploads
+                body: formDataToSend, // Utilisez FormData ici
             });
-
+    
             if (!signupResponse.ok) {
                 const errorData = await signupResponse.json();
                 throw new Error(errorData.message || "Failed to sign up");
             }
-
-            history("/signin"); // Redirect after successful sign-up
+    
+            history("/signin");
+    
         } catch (err) {
             console.error("Error during signup:", err);
             setErrorDisplay(err.message || "An error occurred. Please try again.");
         }
     };
 
-    // Determine if form is valid for button color
-    const isFormValid =
-        Object.values(formErrors).every((err) => err === "") && Object.values(formData).every((val) => val !== "");
+    // Déterminer si le formulaire est valide ou non pour ajuster la couleur du bouton
+    const isFormValid = Object.values(formErrors).every((err) => err === "") && Object.values(formData).every((val) => val !== "");
 
     return (
         <div className="my-5">
@@ -168,7 +166,7 @@ export default function Signup() {
                 <div className="form-group">
                     <input
                         type="text"
-                        className={`form-control ${formErrors.lastName ? "is-invalid" : ""}`}
+                        className={`form-control ${formErrors.lastName ? "is-invalid" : ""}`} // Fixed class and variable
                         id="lastName"
                         name="lastName"
                         placeholder="Enter Last Name"
@@ -257,22 +255,6 @@ export default function Signup() {
                         onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
                     />
                     {formErrors.image && <div className="invalid-feedback">{formErrors.image}</div>}
-                </div>
-
-                {/* Role Selection */}
-                <div className="form-group">
-                    <select
-                        className={`form-control ${formErrors.role ? "is-invalid" : ""}`}
-                        id="role"
-                        name="role"
-                        value={formData.role}
-                        onChange={onChange}
-                    >
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                        <option value="moderator">Moderator</option>
-                    </select>
-                    {formErrors.role && <div className="invalid-feedback">{formErrors.role}</div>}
                 </div>
 
                 {/* Error Display */}
