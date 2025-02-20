@@ -216,9 +216,10 @@ body {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
 }
 .community-button {
-  font-size: 12px; /* Smaller text */
+  font-size: 15px; /* Smaller text */
   padding: 20px 20px; /* Smaller padding */
-  border-radius: 25px; /* Rounded corners */
+  width: 180px;
+  border-radius: 20px; /* Rounded corners */
   transition: all 0.3s ease; /* Smooth transition for hover effects */
   background-color: #5FCF80; /* Custom background color */
   border: none; /* Remove default border */
