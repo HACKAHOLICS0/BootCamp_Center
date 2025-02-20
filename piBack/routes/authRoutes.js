@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken'); // <-- Import de jsonwebtoken
+const jwt = require('jsonwebtoken');
 const authController = require('../controllers/authController');
-const upload = require('../config/multerConfig'); // Middleware pour gérer l'upload d'images
-const passport = require("passport");
+const upload = require('../config/multerConfig');
+const passport = require('passport');
 
 // Vérification de l'email
 router.get('/check/:email', authController.checkEmailExists);
@@ -39,17 +39,24 @@ router.get(
   passport.authenticate('google', { session: false, failureRedirect: '/signin' }),
   (req, res) => {
     // À ce stade, req.user contient l'utilisateur authentifié
-    // On génère un token JWT
-    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
+    // Si l'utilisateur n'existe pas, le créer ou mettre à jour dans la base de données.
+    const user = req.user;
+    if (!user) {
+      return res.status(400).json({ msg: 'Utilisateur Google non trouvé.' });
+    }
+
+    // Génération d'un token JWT
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     // Redirection vers le frontend en incluant le token dans l'URL
     res.redirect(`http://localhost:3000/google/${token}`);
   }
 );
-router.put("/:id", upload.single('image'), authController.editUser);
-router.get("/:id", authController.getUserById);
 
+// Route pour éditer l'utilisateur avec upload d'image (optionnel)
+router.put("/:id", upload.single('image'), authController.editUser);
+
+// Route pour obtenir un utilisateur par son ID
+router.get("/:id", authController.getUserById);
 
 module.exports = router;
