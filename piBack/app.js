@@ -10,6 +10,7 @@ const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const { initializePoints } = require('./controllers/intrestpoint'); // Ton contrôleur pour les points d'intérêt
 const interestPointRoutes = require('./routes/intrestRoutes'); // Assurez-vous que le chemin est correct
+const adminRoutes = require("./routes/AdminRoutes"); 
 // Charger les variables d'environnement
 dotenv.config({ path: "./config/.env" });
 
@@ -39,6 +40,8 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Routes d'authentification
 app.use("/api/auth", authRoutes);
+//  Add new Admin Routes for user management
+app.use("/api/admin", adminRoutes);
 
 const interestPointModel = require('./Model/Interestpoint'); // Assure-toi d'importer ton modèle
 app.use('/api', interestPointRoutes);
