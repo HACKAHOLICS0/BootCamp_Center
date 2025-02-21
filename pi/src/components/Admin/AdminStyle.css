@@ -21,7 +21,7 @@
   /* Sidebar Styles */
   .sidebar {
     width: 260px;
-    background-color: #2d3436;
+    background-color: #80FE80;
     color: #fff;
     transition: width 0.3s ease;
     position: relative;
@@ -62,7 +62,7 @@
   .toggle-btn {
     background: none;
     border: none;
-    color: #fff;
+    color: black;
     cursor: pointer;
     padding: 5px;
   }
@@ -76,7 +76,7 @@
     display: flex;
     align-items: center;
     padding: 12px 20px;
-    color: #fff;
+    color: black;
     text-decoration: none;
     transition: background-color 0.3s;
     gap: 12px;
