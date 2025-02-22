@@ -77,10 +77,10 @@ const [pointToDelete, setPointToDelete] = useState(null);
             return;
         }
     
-        console.log("User ID passed as parameter:", user.id); // Ajout du log pour afficher l'ID
+        console.log("User ID passed as parameter:", user._id); // Ajout du log pour afficher l'ID
     
         try {
-            const response = await fetch(`${backendURL}/api/auth/${user.id}`, {
+            const response = await fetch(`${backendURL}/api/auth/${user._id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -420,20 +420,21 @@ const [pointToDelete, setPointToDelete] = useState(null);
 )}
 {isDeleteModalOpen && (
     <div className="modal-overlay">
-        <div className="modal-content">
+        <div className="modal-content delete-modal">
             <span className="close" onClick={closeDeleteModal}>&times;</span>
-            <h4>Do you want to delete this interest point?</h4>
-            <div className="text-end mt-3">
+            <h4>Are you sure you want to delete this interest point?</h4>
+            <div className="modal-footer">
                 <button className="delete-button" onClick={deleteInterestPoint}>
-                    Yes
+                    Yes, Delete
                 </button>
                 <button className="cancel-button" onClick={closeDeleteModal}>
-                    No
+                    No, Keep
                 </button>
             </div>
         </div>
     </div>
 )}
+
 
             </div>
         </div>

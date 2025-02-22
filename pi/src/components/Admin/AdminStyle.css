@@ -1,162 +1,192 @@
-Analytics.js/* Reset and Base Styles */
+/* Reset and Base Styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-  }
-  
-  
-  body {
+}
+
+body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f5f6fa;
     color: #2d3436;
-  }
-  
-  /* Admin Layout */
-  .admin-layout {
+}
+
+/* Admin Layout */
+.admin-layout {
     display: flex;
     min-height: 100vh;
-  }
-  
-  /* Sidebar Styles */
-  .sidebar {
+}
+
+/* Sidebar Styles */
+.sidebar {
     width: 260px;
-    background-color: #80FE80;
-    color: #fff;
+    background-color: #fafafa;
+    box-shadow: 0px 0px 20px #39d70077;
     transition: width 0.3s ease;
     position: relative;
-  }
-  
-  .sidebar.collapsed {
-    width: 80px;
-  }
-  
-  .sidebar-header {
+}
+
+/* Sidebar Header */
+.sidebar-header {
     padding: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .sidebar-header h2 {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    overflow: hidden;
-    white-space: nowrap;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
+    color: white;
+    background-color: #39d700;
+    padding: 10px;
+    text-align: center;
+    width: 100%;
+    border-radius: 5px;
+}
 
-.sidebar.collapsed .sidebar-header h2 span {
-    opacity: 0;
-    transform: translateX(-20px); /* Slide left */
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-  .user-avatar {
-    width: 50px;
-    height: 50px;
-    object-fit: cover; /* Ensures the image maintains aspect ratio */
-    border-radius: 50%; /* Optional: Makes the image circular */
-  }
-  
-  .toggle-btn {
-    background: none;
-    border: none;
-    color: black;
-    cursor: pointer;
-    padding: 5px;
-  }
-  
-  .sidebar-nav ul {
+/* Sidebar Navigation */
+.sidebar-nav ul {
     list-style: none;
     padding: 20px 0;
-  }
-  
-  .sidebar-nav li a {
+}
+
+.sidebar-nav li {
+    position: relative;
+}
+
+/* Ligne verte entre chaque élément */
+.sidebar-nav li:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 15px;
+    right: 15px;
+    height: 1px;
+    background-color: #39d700;
+    opacity: 0.5;
+}
+
+/* Premier élément toujours en vert */
+.sidebar-nav li:first-child a {
+    background-color: #39d700;
+    color: white;
+    font-weight: bold;
+}
+
+/* Liens */
+.sidebar-nav li a {
     display: flex;
     align-items: center;
     padding: 12px 20px;
     color: black;
     text-decoration: none;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
     gap: 12px;
-  }
-  
-  .sidebar-nav li a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .sidebar.collapsed .sidebar-nav li a span {
+    border-radius: 5px;
+}
+
+/* Effet flottant */
+.sidebar-nav li a:hover {
+    background-color: #39d700;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0px 4px 10px rgba(57, 215, 0, 0.3);
+}
+
+/* Masquer le texte en mode réduit */
+.sidebar.collapsed .sidebar-nav li a span {
     display: none;
-  }
-  
-  /* Main Content Area */
-  .main-content {
+}
+
+/* Main Content */
+.main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
-  }
-  
-  /* Top Bar */
-  .topbar {
+}
+
+/* Top Bar */
+.topbar {
     background-color: #fff;
     padding: 15px 30px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .search-box {
+}
+
+.topbar h2 {
+    color: black;
+}
+
+/* Search Box */
+.search-box {
     display: flex;
     align-items: center;
-    background-color: #f5f6fa;
+    background-color: #ffffff;
     padding: 8px 15px;
     border-radius: 8px;
     width: 300px;
-  }
-  
-  .search-box input {
+}
+
+.search-box input {
     border: none;
     background: none;
     margin-left: 10px;
     outline: none;
     width: 100%;
-  }
-  
-  .topbar-right {
+    color: rgb(3, 23, 6);
+}
+
+/* Topbar Right */
+.topbar-right {
     display: flex;
     align-items: center;
     gap: 20px;
-  }
-  
-  .theme-toggle, .logout-btn {
+}
+
+/* Theme Toggle & Logout */
+.theme-toggle {
     background: none;
     border: none;
     cursor: pointer;
     padding: 8px;
     border-radius: 50%;
     transition: background-color 0.3s;
-  }
-  
-  .theme-toggle:hover, .logout-btn:hover {
-    background-color: #f5f6fa;
-  }
-  
-  .user-menu {
+}
+
+.logout-btn {
+    background: #39d700;
+    border: none;
+    cursor: pointer;
+    padding: 8px 15px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #2ea600;
+}
+
+/* User Menu */
+.user-menu {
     display: flex;
     align-items: center;
     gap: 10px;
-  }
-  
-  .user-menu img {
+}
+
+.user-menu img {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-  }
-  
+}
+
   /* Content Wrapper */
   .content-wrapper {
     padding: 30px;
@@ -247,7 +277,7 @@ Analytics.js/* Reset and Base Styles */
   }
   
   .action-btn.delete {
-    background-color: #ff7675;
+    background-color: #801f1f;
     color: #fff;
   }
   
@@ -466,3 +496,17 @@ Analytics.js/* Reset and Base Styles */
       padding: 15px;
     }
   }
+
+button{
+    
+        width: 100%;
+        background-color: #39d700;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 1rem;
+        border: none;
+        border-radius: 10px;
+        transition: background-color 0.3sease;
+        cursor: pointer;
+}

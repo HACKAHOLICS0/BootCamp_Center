@@ -20,7 +20,7 @@ import Products from './components/Admin/Products';
 import Analytics from './components/Admin/Analytics';
 import Notifications from './components/Admin/Notifications';
 import Settings from './components/Admin/Settings';
-
+import Points from './components/Admin/PointsOfIntrest';
 function App() {
   const location = useLocation();
   
@@ -30,7 +30,9 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <div className="App">
-        <Navbar />
+        {/* Afficher Navbar uniquement si ce n'est pas une route admin */}
+        {!isAdminRoute && <Navbar />}
+        
         <Routes>
           <Route path="/signin" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
@@ -47,12 +49,12 @@ function App() {
           <Route path="/admin/*" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="users" element={<Users />} />
+            <Route path="points" element={<Points />} />
             <Route path="products" element={<Products />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="settings" element={<Settings />} />
           </Route>
-      
         </Routes>
 
         {/* Ne pas afficher le Template ni le Footer si c'est une route Admin */}
@@ -64,5 +66,6 @@ function App() {
     </GoogleOAuthProvider>
   );
 }
+
 
 export default App;

@@ -46,9 +46,14 @@ const Users = () => {
     }
   };
 
+  // Function to get user image URL
   const getImageUrl = (imagePath) => {
-    return imagePath ? `http://localhost:5000/${imagePath.replace(/\\/g, "/")}` : "/uploads/avatar7.png";
-};
+    if (!imagePath || imagePath.trim() === "") {
+      return "/uploads/avatar7.png"; // Default image if empty or undefined
+    }
+    return `http://localhost:5000/${imagePath.replace(/\\/g, "/")}`;
+  };
+
   return (
     <div className="content-section">
       <h2>User Management</h2>
@@ -75,18 +80,18 @@ const Users = () => {
                 <tr key={user._id}>
                   <td>
                     <img
-                      src={getImageUrl(user.image)}
+                      src={getImageUrl(user?.image)}
                       alt="User"
                       className="user-avatar"
                     />
                   </td>
                   <td>{user.name} {user.lastName}</td>
                   <td>{user.email}</td>
-                  <td>{user.phone || "N/A"}</td>
+                  <td>{user.phone ?? "N/A"}</td>
                   <td>
                     {user.refinterestpoints?.length > 0 
                       ? user.refinterestpoints.join(", ")  // Convert array to a comma-separated string
-                      : "null"}
+                      : "N/A"}
                   </td>
                   <td>
                     <button className="action-btn delete" onClick={() => handleDelete(user._id)}>Delete</button>
