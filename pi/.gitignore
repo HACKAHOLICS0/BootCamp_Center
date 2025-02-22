@@ -1,17 +1,2 @@
-# Ignorer tous les fichiers par défaut
-*
-
-# Ne pas ignorer les dossiers (garder la structure)
-!*/
-
-# Exclure node_modules et autres fichiers inutiles
 node_modules/
 .env
-dist/
-build/
-
-# Ignorer uniquement le dossier user sous components
-src/components/user/
-
-# Ne pas ignorer ce fichier pour que Git le garde
-!/.gitignore

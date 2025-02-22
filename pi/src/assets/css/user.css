@@ -80,3 +80,50 @@ body.modal-open {
     position: relative;
     padding-bottom: 50px; /* Pour ne pas que l'icône cache du texte */
 }
+
+.card-point {
+    box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%) !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+    word-wrap: break-word !important;
+    background-color: rgb(255, 255, 255) !important;
+    background-clip: border-box !important;
+    border: 0px solid rgba(0,0,0,.125) !important;
+    border-radius: 1rem !important;
+}
+
+.card-body-point{   
+    margin-left: 20px;
+    border: 0px !important;
+}
+/* Style de la carte de points d'intérêt */
+.card.point-card {
+    transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
+    cursor: pointer;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre douce par défaut */
+    background-color: #fff;
+}
+
+/* Effet au survol de la carte */
+.card.point-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Ombre plus forte */
+    transform: translateY(-5px); /* Légère remontée */
+}
+
+/* Style lorsque la carte est sélectionnée */
+.card.selected {
+    box-shadow: 0 4px 8px rgba(0, 255, 0, 0.5); /* Ombre verte brillante */
+    border: 2px solid #00ff00; /* Contour brillant */
+    background-color: #e0ffe0; /* Fond légèrement vert */
+}
+
+/* Style pour les points non sélectionnés */
+.card:not(.selected) {
+    box-shadow: 0 4px 8px rgba(0, 255, 0, 0.5); /* Ombre verte brillante */
+    
+    /* Pas de contour par défaut */
+}

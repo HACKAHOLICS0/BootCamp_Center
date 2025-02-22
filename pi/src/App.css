@@ -54,10 +54,6 @@ body {
   display: none;
 }
 
-/* Effet de flou de fond */
-#header {
-  backdrop-filter: blur(10px);
-}
 
 /* Footer */
 .footer {
