@@ -44,7 +44,7 @@ export default function UserProfile() {
             try {
                 const response = await fetch(`${backendURL}/api/interest-points`);
                 const data = await response.json();
-                console.log("Fetched interest points:", data);
+                console.log("Fetched interest points:", data); // Vérifie le format des données
     
                 setInterestPoints(data);
     
@@ -61,21 +61,23 @@ export default function UserProfile() {
             fetchInterestPoints();
         }
     }, [user]);
+    
 
     const handleEditUser = () => {
         setIsModalOpen(true);
     };
 
     const handleSaveUser = async () => {
-        if (!user || !user._id) {
+        if (!user || !(user._id || user.id)) {
+
             console.log("No user or user ID found.");
             return;
         }
     
-        console.log("User ID passed as parameter:", user._id); // Ajout du log pour afficher l'ID
+        console.log("User ID passed as parameter:", user.id); // Ajout du log pour afficher l'ID
     
         try {
-            const response = await fetch(`${backendURL}/api/auth/${user._id}`, {
+            const response = await fetch(`${backendURL}/api/auth/${user.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -325,32 +327,33 @@ export default function UserProfile() {
                     </div>
                 )}
 
-                {isInterestPointModalOpen && (
-                    <div className="modal-overlay">
-                        <div className="modal-content">
-                            <span className="close" onClick={closeInterestPointModal}>&times;</span>
-                            <h4>Select Points of Interest</h4>
-                            <div className="interest-points-container">
-                                {interestPoints.map((point, index) => (
-                                    <div key={index} className="form-check">
-                                        <input
-                                            type="checkbox"
-                                            className="form-check-input"
-                                            checked={selectedPoints.includes(point.value)}
-                                            onChange={() => handlePointSelection(point)}
-                                        />
-                                        <label className="form-check-label">{point.label}</label>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="text-end mt-3">
-                                <button className="save-button" onClick={handleSaveSelection}>
-                                    Save Selection
-                                </button>
-                            </div>
+{isInterestPointModalOpen && (
+    <div className="modal-overlay">
+        <div className="modal-content">
+            <span className="close" onClick={closeInterestPointModal}>&times;</span>
+            <h4>Select Points of Interest</h4>
+            <div className="interest-points-grid">
+                {interestPoints.map((point, index) => (
+                    <div 
+                        key={index} 
+                        className={`card point-card ${selectedPoints.includes(point.value) ? 'selected' : ''}`} 
+                        onClick={() => handlePointSelection(point)}
+                    >
+                        <div className="card-body card-body-point">
+                            <h5>{point.value}</h5>
                         </div>
                     </div>
-                )}
+                ))}
+            </div>
+            <div className="text-end mt-3">
+                <button className="save-button" onClick={handleSaveSelection}>
+                    Save Selection
+                </button>
+            </div>
+        </div>
+    </div>
+)}
+
             </div>
         </div>
     );

@@ -127,3 +127,34 @@ body.modal-open {
     
     /* Pas de contour par défaut */
 }
+/* Conteneur en grille pour les cartes */
+.interest-points-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    padding: 10px;
+}
+
+/* Style de la carte de points d'intérêt */
+.card.point-card {
+    transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
+    cursor: pointer;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    text-align: center;
+}
+
+/* Effet au survol */
+.card.point-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+}
+
+/* Style lorsque la carte est sélectionnée */
+.card.point-card.selected {
+    box-shadow: 0 4px 8px rgba(0, 255, 0, 0.5);
+    border: 2px solid #00ff00;
+    background-color: #e0ffe0;
+}
