@@ -268,35 +268,54 @@ const resetPassword = async (req, res) => {
  * Nouvelle fonction : Envoi du code de vérification par e-mail uniquement pour la réinitialisation du mot de passe
  */
 const forgotPasswordEmail = async (req, res) => {
-    const { email } = req.body;
-  
-    try {
+  const { email } = req.body;
+
+  try {
       if (!email) {
-        return res.status(400).json({ message: "L'email est requis" });
+          return res.status(400).json({ message: "L'email est requis" });
       }
-  
+
       // Recherche de l'utilisateur par e-mail
       const user = await User.findOne({ email });
       if (!user) {
-        return res.status(404).json({ message: 'Utilisateur non trouvé' });
+          return res.status(404).json({ message: 'Utilisateur non trouvé' });
       }
-  
+
       // Génération d'un code de vérification à 6 chiffres
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-  
+
       // Sauvegarde du code dans la base de données
       user.verificationCode = verificationCode;
       await user.save();
-  
-      // Envoi du code par e-mail
-      await sendEmail(email, 'Réinitialisation de mot de passe - Code de vérification', `Votre code de vérification est : ${verificationCode}`);
-  
+
+      // Contenu amélioré du mail
+      const emailSubject = '🔐 Réinitialisation de votre mot de passe';
+      const emailBody = `
+          Hello ${user.name},
+ 
+          We received a password reset request for your account.  
+          Your verification code is :${verificationCode}
+
+          Please enter this code in the application to proceed with resetting your password.
+         If you did not request this, you can safely ignore this email.
+ 
+        
+        Best regards, 
+        CAMPX Team
+      `;
+
+      
+
+      // Envoi du mail avec format HTML
+      await sendEmail(email, emailSubject, emailBody);
+
       res.status(200).json({ message: 'Code de vérification envoyé par e-mail' });
-    } catch (error) {
+  } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Erreur interne du serveur' });
-    }
-  };
+  }
+};
+
   
   /**
    * Nouvelle fonction : Réinitialisation du mot de passe après vérification par e-mail
@@ -328,8 +347,42 @@ const forgotPasswordEmail = async (req, res) => {
     }
   };
 
+  const googleTokenAuth = async (req, res) => {
+    try {
+        const { token } = req.body;
+        const decoded = jwt.decode(token);
+
+        let user = await User.findOne({ email: decoded.email });
+
+        if (!user) {
+            user = new User({
+                googleId: decoded.sub,
+                name: decoded.name,
+                email: decoded.email,
+                typeUser: "user",
+                image: decoded.picture, // Stocke l'URL de la photo de profil Google
+            });
+            await user.save();
+        } else {
+            // Met à jour l'image de l'utilisateur avec l'image Google s'il n'a pas déjà une image locale
+            if (!user.image || user.image.startsWith("uploads/")) {
+                user.image = decoded.picture;
+                await user.save();
+            }
+        }
+
+        const appToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+            expiresIn: "1h",
+        });
+
+        res.json({ token: appToken, user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Erreur d'authentification Google" });
+    }
+};
 
 
   
-  module.exports = { signup,authenticate, signin, checkEmailExists, sendVerificationCode,editUser,getUserById, verifyCode, resetPassword, resetPasswordEmail, forgotPasswordEmail };
+  module.exports = { googleTokenAuth,signup,authenticate, signin, checkEmailExists, sendVerificationCode,editUser,getUserById, verifyCode, resetPassword, resetPasswordEmail, forgotPasswordEmail };
   
