@@ -12,30 +12,30 @@ export default function Navbar() {
   const updateUser = () => {
     const storedUser = Cookies.get("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      setUser(JSON.parse(storedUser));  // Mettez à jour l'état avec les données utilisateur
     }
   };
 
   // Charger l'utilisateur au montage et écouter les mises à jour
   useEffect(() => {
-    updateUser();
-  
-    const handleUserUpdate = () => updateUser();
-    window.addEventListener("userUpdated", handleUserUpdate);
-  
+    updateUser();  // Charger l'utilisateur initialement
+    
+    const handleUserUpdate = () => updateUser();  // Mettre à jour l'utilisateur lors d'un changement
+    window.addEventListener("userUpdated", handleUserUpdate);  // Écoute l'événement 'userUpdated'
+
     return () => {
-      window.removeEventListener("userUpdated", handleUserUpdate); // Assurez-vous de supprimer l'événement
+      window.removeEventListener("userUpdated", handleUserUpdate);  // Nettoyez l'écouteur d'événements
     };
-  }, []);
+  }, []);  // Seulement au montage du composant
 
   // Fonction pour déconnecter l'utilisateur
   const handleSignOut = (e) => {
     e.preventDefault();
     Cookies.remove("user");
-    Cookies.remove("token"); // Supprime aussi le token
-    setUser(null);
-    window.dispatchEvent(new Event("userUpdated")); // Notifie le changement
-    navigate("/signin"); // Redirige après la déconnexion
+    Cookies.remove("token");  // Supprime aussi le token
+    setUser(null);  // Réinitialiser l'état utilisateur
+    window.dispatchEvent(new Event("userUpdated"));  // Notifie le changement
+    navigate("/signin");  // Redirige après la déconnexion
   };
 
   return (
@@ -58,11 +58,12 @@ export default function Navbar() {
                 Modules
               </Link>
             </li>
-            {user && user.typeUser === "user" ? (
+            {user ? (
               <li className="nav-item d-flex">
                 <Link to="/profile" className="nav-link text-dark hover-effect">
                   Profile
                 </Link>
+              
                 <button
                   onClick={handleSignOut}
                   className="nav-link btn btn-link text-dark hover-effect"

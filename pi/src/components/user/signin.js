@@ -30,7 +30,13 @@ export default function Signin() {
         Cookies.set("token", data.token, { expires: 7 }); // Expire dans 7 jours
         Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
         window.dispatchEvent(new Event("userUpdated")); // Notifie le changement
-        navigate("/"); // Redirige après la connexion
+
+        // Vérifier le type d'utilisateur et rediriger vers la bonne page
+        if (data.user.typeUser === "admin") {
+          navigate("/admin"); // Redirige vers la page admin si l'utilisateur est un admin
+        } else {
+          navigate("/profile"); // Redirige vers la page profile pour les autres utilisateurs
+        }
       } else {
         setErrorDisplay(data.message || "Incorrect email or password");
       }

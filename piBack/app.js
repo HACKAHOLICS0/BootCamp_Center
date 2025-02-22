@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const passport = require("passport");
 const mongoose = require('mongoose');
-
+const adminRoutes = require("./routes/AdminRoutes"); 
 require("./utils/passport"); // Configuration Passport
 const bodyParser = require("body-parser");
 const path = require("path");
@@ -39,7 +39,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Routes d'authentification
 app.use("/api/auth", authRoutes);
-
+app.use("/api/admin", adminRoutes);
 const interestPointModel = require('./Model/Interestpoint'); // Assure-toi d'importer ton modèle
 app.use('/api', interestPointRoutes);
 app.get('/api/points', async (req, res) => {
