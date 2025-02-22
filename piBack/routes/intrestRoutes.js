@@ -8,5 +8,5 @@ router.post('/initialize-points', initializePoints);
 // Route pour récupérer les points d'intérêt
 router.get('/interest-points', getInterestPoints);
 router.put('/user/:userId/interest-points',updateUserInterestPoints );
-router.put('/user/:userId/delete-point', deleteUserInterestPoint); 
+router.delete('/user/:userId/interest-point', deleteUserInterestPoint);
 module.exports = router;

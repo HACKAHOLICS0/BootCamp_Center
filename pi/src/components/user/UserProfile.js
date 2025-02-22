@@ -12,6 +12,9 @@ export default function UserProfile() {
     const [user, setUser] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isInterestPointModalOpen, setIsInterestPointModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+const [pointToDelete, setPointToDelete] = useState(null);
+
     const [editableUser, setEditableUser] = useState({
         name: "", lastName: "", birthDate: "", email: "", phone: ""
     });
@@ -210,7 +213,67 @@ export default function UserProfile() {
     const checkFormValidity = (newErrors) => {
         setIsFormValid(!Object.values(newErrors).some(error => error !== '') && Object.values(editableUser).every(value => value !== ''));
     };
+    const openDeleteModal = (point) => {
+        console.log("Selected point for deletion:", point); // Vérifie ce qui est sélectionné
+        setPointToDelete(point);  // Assure-toi d'utiliser `point.value`
+        setIsDeleteModalOpen(true);
+    };
     
+    
+    const closeDeleteModal = () => {
+        setIsDeleteModalOpen(false);
+        setPointToDelete(null);
+    };
+    const deleteInterestPoint = async () => {
+        console.log("Point to delete:", pointToDelete);  // Vérifie ce que contient pointToDelete
+        
+        const storedUser = Cookies.get("user");
+        if (!storedUser) {
+            console.log("No stored user found in localStorage.");
+            return;
+        }
+    
+        const parsedUser = JSON.parse(storedUser);
+        const userId = parsedUser._id || parsedUser.id;
+    
+        try {
+            const response = await fetch(`${backendURL}/api/user/${userId}/interest-point`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ point: pointToDelete })
+            });
+    
+            if (!response.ok) {
+                throw new Error("Failed to delete interest point");
+            }
+    
+            // Mettre à jour les points d'intérêt de l'utilisateur
+            const updatedUserInterestPoints = user.refinterestpoints.filter(point => point !== pointToDelete);
+            
+            // Mettez à jour les données de l'utilisateur pour refléter les points supprimés
+            const updatedUser = { 
+                ...user, 
+                refinterestpoints: updatedUserInterestPoints 
+            };
+    
+            setUser(updatedUser);
+            Cookies.set("user", JSON.stringify(updatedUser), { expires: 7 });
+    
+            // Mettre à jour l'état local des points d'intérêt
+            setInterestPoints(updatedUserInterestPoints);  // Seuls les points de l'utilisateur
+    
+            // Fermer le modal après suppression
+            closeDeleteModal();
+    
+        } catch (error) {
+            console.error("Erreur lors de la suppression du point d'intérêt :", error);
+        }
+    };
+    
+    
+
     if (!user) {
         return (
             <div className="text-center mt-5">
@@ -264,29 +327,31 @@ export default function UserProfile() {
                                 <h4 className="text-center my-3">Points of Interest</h4>
                                 <hr />
                                 <div className="row">
-                                    {user.refinterestpoints && user.refinterestpoints.length > 0 ? (
-                                        user.refinterestpoints.map((point, i) => (
-                                            <div key={i} className="col-auto mb-2">
-                                                <div
-                                                    className="card point-card"
-                                                    style={{
-                                                        cursor: 'pointer',
-                                                        maxWidth: '250px',
-                                                        fontSize: '0.9rem',
-                                                        padding: '10px',
-                                                        transition: 'transform 0.3s, box-shadow 0.3s',
-                                                    }}
-                                                >
-                                                    <div className="card-body" style={{ padding: '10px' }}>
-                                                        <h5>{typeof point === 'string' ? point : JSON.stringify(point)}</h5>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <p>No points of interest available.</p>
-                                    )}
-                                </div>
+    {user.refinterestpoints && user.refinterestpoints.length > 0 ? (
+        user.refinterestpoints.map((point, i) => (
+            <div key={i} className="col-auto mb-2">
+                <div
+                    className="card point-card"
+                    style={{
+                        cursor: 'pointer',
+                        maxWidth: '250px',
+                        fontSize: '0.9rem',
+                        padding: '10px',
+                        transition: 'transform 0.3s, box-shadow 0.3s',
+                    }}
+                    onClick={() => openDeleteModal(typeof point === 'string' ? point : point.value)} // Vérifie si point est une chaîne ou un objet
+                >
+                    <div className="card-body" style={{ padding: '10px' }}>
+                        <h5>{typeof point === 'string' ? point : point.value}</h5> {/* Affiche correctement le nom du point */}
+                    </div>
+                </div>
+            </div>
+        ))
+    ) : (
+        <p>No points of interest available.</p>
+    )}
+</div>
+
                                 <div className="text-end mt-3 me-3">
                                     <button className="edit-button" onClick={openInterestPointModal}>
                                         Add
@@ -348,6 +413,22 @@ export default function UserProfile() {
             <div className="text-end mt-3">
                 <button className="save-button" onClick={handleSaveSelection}>
                     Save Selection
+                </button>
+            </div>
+        </div>
+    </div>
+)}
+{isDeleteModalOpen && (
+    <div className="modal-overlay">
+        <div className="modal-content">
+            <span className="close" onClick={closeDeleteModal}>&times;</span>
+            <h4>Do you want to delete this interest point?</h4>
+            <div className="text-end mt-3">
+                <button className="delete-button" onClick={deleteInterestPoint}>
+                    Yes
+                </button>
+                <button className="cancel-button" onClick={closeDeleteModal}>
+                    No
                 </button>
             </div>
         </div>

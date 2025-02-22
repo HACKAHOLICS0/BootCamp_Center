@@ -82,34 +82,40 @@ async function updateUserInterestPoints(req, res) {
 async function deleteUserInterestPoint(req, res) {
     try {
         const { userId } = req.params;
-        const { point } = req.body;  // Point d'intérêt à supprimer
+        const { point } = req.body;
+
+        console.log(`Tentative de suppression pour userId: ${userId}, point: ${point}`);
 
         if (!userId || !point) {
+            console.log("ID utilisateur ou point d'intérêt manquant");
             return res.status(400).json({ message: "ID utilisateur ou point d'intérêt manquant" });
         }
 
-        // Trouver l'utilisateur
         const user = await User.findById(userId);
         if (!user) {
+            console.log(`Utilisateur avec ID ${userId} non trouvé`);
             return res.status(404).json({ message: "Utilisateur non trouvé" });
         }
 
         if (!user.refinterestpoints.includes(point)) {
+            console.log(`Point d'intérêt ${point} non trouvé dans la liste de l'utilisateur`);
             return res.status(400).json({ message: "Point d'intérêt non trouvé dans la liste" });
         }
 
-        // Utiliser $pull pour supprimer le point d'intérêt du tableau refinterestpoints
         const updatedUser = await User.findByIdAndUpdate(
             userId,
-            { $pull: { refinterestpoints: point } },  // Suppression du point d'intérêt
+            { $pull: { refinterestpoints: point } },
             { new: true }
         );
 
+        console.log(`Point d'intérêt ${point} supprimé avec succès pour l'utilisateur ${userId}`);
         res.status(200).json({ message: "Point d'intérêt supprimé avec succès", updatedUser });
     } catch (err) {
-        console.error("Erreur lors de la suppression du point d'intérêt de l'utilisateur:", err);
+        console.error("Erreur lors de la suppression:", err);
         res.status(500).json({ message: "Erreur serveur" });
     }
 }
+
+
 
 module.exports = { initializePoints , getInterestPoints,updateUserInterestPoints,deleteUserInterestPoint  };
