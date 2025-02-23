@@ -1,51 +1,53 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import GoogleLoginButton from "./GoogleLoginButton";
 import "../../assets/css/signin.css";
-import Cookies from "js-cookie"; // Import de js-cookie
+import Cookies from "js-cookie";
 
 export default function Signin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errorDisplay, setErrorDisplay] = useState("");
 
-  const onChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const onSubmit = async (e) => {
     e.preventDefault();
 
     try {
-        const response = await fetch("http://localhost:5000/api/auth/signin", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-        });
+      const response = await fetch("http://localhost:5000/api/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (response.ok) {
-            Cookies.set("token", data.token, { expires: 7 });
-            Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
-            window.dispatchEvent(new Event("userUpdated"));
+      if (response.ok) {
+        Cookies.set("token", data.token, { expires: 7 });
+        Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
+        window.dispatchEvent(new Event("userUpdated"));
 
-            // Redirect based on the user's type
-            if (data.user.typeUser === "admin") {
-                navigate("/admin"); // Redirect to admin dashboard
-            } else {
-                navigate("/"); // Redirect to user page
-            }
+        // Check if user is admin
+        if (data.user.typeUser === "admin") {
+          navigate("/admin", { replace: true });
         } else {
-            setErrorDisplay(data.message || "Incorrect email or password");
+          // If the user was trying to access /admin, send them to /
+          const previousPath = location.state?.from?.pathname;
+          navigate(previousPath && !previousPath.startsWith("/admin") ? previousPath : "/", { replace: true });
         }
+      } else {
+        setErrorDisplay(data.message || "Incorrect email or password");
+      }
     } catch (err) {
-        setErrorDisplay("An error occurred. Please try again.");
+      setErrorDisplay("An error occurred. Please try again.");
     }
-};
+  };
 
-  const handleGoogleLoginSuccess = async (credentialResponse) => {
+  const handleGoogleLoginSuccess = async () => {
     window.location.href = "http://localhost:5000/api/auth/google";
   };
 
@@ -82,7 +84,7 @@ export default function Signin() {
         <div className="error-message" style={{ color: "red", textAlign: "center" }}>
           {errorDisplay}
         </div>
-        <button type="submit" className="btn btn-submbb it">Submit</button>
+        <button type="submit" className="btn btn-submit">Submit</button>
       </form>
       <div style={{ textAlign: "center", marginTop: "20px" }}>
         <GoogleLoginButton onSuccess={handleGoogleLoginSuccess} />

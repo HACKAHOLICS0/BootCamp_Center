@@ -1,6 +1,8 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import Cookies from 'js-cookie';
+
 import Footer from './components/Footer';
 import Navbar from './components/navbar';
 import Template from './template';
@@ -24,10 +26,31 @@ import Analytics from './components/Admin/Analytics';
 import Notifications from './components/Admin/Notifications';
 import Settings from './components/Admin/Settings';
 
+// Function to check if user is authenticated
+const isAuthenticated = () => {
+  const user = Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null;
+  return user && Cookies.get('token'); 
+};
+
+// Function to check if user is an admin
+const isAdmin = () => {
+  const user = Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null;
+  return user && user.typeUser === 'admin';
+};
+
+// Protected route for authenticated users
+const ProtectedRoute = ({ children }) => {
+  const location = useLocation();
+  return isAuthenticated() ? children : <Navigate to="/signin" state={{ from: location }} replace />;
+};
+
+// Protected route for admin-only access
+const AdminProtectedRoute = ({ children }) => {
+  return isAdmin() ? children : <Navigate to="/" replace />;
+};
+
 function App() {
   const location = useLocation();
-
-  // Check if the current path is under /admin
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
@@ -39,14 +62,23 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/forget-password" element={<ForgotPassword />} />
           <Route path="/verify-code" element={<VerifyCode />} />
-          <Route path="/reset-password" element={<ResetPassword />} />   
-          <Route path="/resetpasswordemail" element={<ResetPasswordEmail />} />      
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/resetpasswordemail" element={<ResetPasswordEmail />} />
           <Route path="/verifycodeEmail" element={<VerifyCodeEmail />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/google/:token" element={<GoogleRedirectHandler />} />
 
-          {/* Admin routes - separate layout */}
-          <Route path="/admin/*" element={<AdminLayout />}>
+          {/* Admin routes - protected */}
+          <Route
+            path="/admin/*"
+            element={
+              <ProtectedRoute>
+                <AdminProtectedRoute>
+                  <AdminLayout />
+                </AdminProtectedRoute>
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<Dashboard />} />
             <Route path="users" element={<Users />} />
             <Route path="products" element={<Products />} />
@@ -60,7 +92,7 @@ function App() {
         {!isAdminRoute && (
           <>
             <Navbar />
-            {!(["/signin", "/signup", "/forget-password", "/profile"].includes(location.pathname)) && <Template />}
+            {!["/signin", "/signup", "/forget-password", "/profile"].includes(location.pathname) && <Template />}
             <Contact />
             <Footer />
           </>
