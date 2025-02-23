@@ -120,7 +120,7 @@ body.dark {
 }
 
 .stat-card h3 {
-  color: #64748b;
+  color: #fff;
   font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 1rem;
@@ -129,7 +129,7 @@ body.dark {
 .stat-number {
   font-size: 2rem;
   font-weight: 600;
-  color: #1e293b;
+  color: fff;
   margin-bottom: 1rem;
 }
 
@@ -378,6 +378,9 @@ body.dark {
   background-color: #1e293b;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+.chart-placeholder h3{
+  color:#fff;
+}
 
 .mock-chart {
   width: 100%;
@@ -511,6 +514,7 @@ body.dark {
 
 .notification-content h4 {
   margin: 0 0 0.5rem;
+  color:#fff
 }
 
 .notification-time {
@@ -629,11 +633,11 @@ input:checked + .slider:before {
   margin-bottom: 20px;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1e293b;
+  color: #fff;
 }
 
 .dark .content-section h2 {
-  color: #f8fafc;
+  color: #fff;
 }
 
 /* Responsive Design */
