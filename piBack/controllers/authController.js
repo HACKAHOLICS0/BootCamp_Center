@@ -361,9 +361,17 @@ const forgotPasswordEmail = async (req, res) => {
         res.status(500).json({ message: 'Error sending email and saving complaint' });
     }
 };
+const logout = (req, res) => {
+  res.clearCookie('token');
+  res.status(200).json({ message: 'Logged out successfully' });
+};
+
 
 
 
   
-  module.exports =   { signup,authenticate, signin, checkEmailExists, sendVerificationCode,editUser,getUserById, verifyCode, resetPassword, resetPasswordEmail, forgotPasswordEmail,contactFormSubmit };
+  module.exports =   { signup,authenticate, signin, checkEmailExists, 
+    sendVerificationCode,editUser,getUserById, verifyCode,
+     resetPassword, resetPasswordEmail, forgotPasswordEmail,
+     contactFormSubmit,logout };
   

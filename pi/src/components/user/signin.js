@@ -16,28 +16,34 @@ export default function Signin() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/signin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+        const response = await fetch("http://localhost:5000/api/auth/signin", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (response.ok) {
-        Cookies.set("token", data.token, { expires: 7 }); // Expire dans 7 jours
-        Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
-        window.dispatchEvent(new Event("userUpdated")); // Notifie le changement
-        navigate("/"); // Redirige après la connexion
-      } else {
-        setErrorDisplay(data.message || "Incorrect email or password");
-      }
+        if (response.ok) {
+            Cookies.set("token", data.token, { expires: 7 });
+            Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
+            window.dispatchEvent(new Event("userUpdated"));
+
+            // Redirect based on the user's type
+            if (data.user.typeUser === "admin") {
+                navigate("/admin"); // Redirect to admin dashboard
+            } else {
+                navigate("/"); // Redirect to user page
+            }
+        } else {
+            setErrorDisplay(data.message || "Incorrect email or password");
+        }
     } catch (err) {
-      setErrorDisplay("An error occurred. Please try again.");
+        setErrorDisplay("An error occurred. Please try again.");
     }
-  };
+};
 
   const handleGoogleLoginSuccess = async (credentialResponse) => {
     window.location.href = "http://localhost:5000/api/auth/google";

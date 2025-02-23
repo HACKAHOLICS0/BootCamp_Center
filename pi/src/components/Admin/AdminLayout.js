@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { 
   Home, Users, Package, BarChart2, Bell, Settings, 
   Search, LogOut, Sun, Moon, Menu
 } from 'lucide-react';
+import Cookies from 'js-cookie';
 import './AdminStyle.css';
 
-const Sidebar = ({ isCollapsed, toggleSidebar }) => {
+const Sidebar = ({ isCollapsed, toggleSidebar, user }) => {
   return (
     <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
@@ -28,7 +29,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   );
 };
 
-const TopBar = ({ toggleTheme, isDarkMode }) => {
+const TopBar = ({ toggleTheme, isDarkMode, onLogout }) => {
+  const user = JSON.parse(Cookies.get("user")); // Retrieve user data from Cookies
+
   return (
     <div className="topbar">
       <div className="search-box">
@@ -40,9 +43,12 @@ const TopBar = ({ toggleTheme, isDarkMode }) => {
           {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
         </button>
         <div className="user-menu">
-          <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop" alt="User" />
-          <span>John Doe</span>
-          <button className="logout-icon-btn">
+          <img
+            src={user?.image || "https://via.placeholder.com/100"}
+            alt="User"
+          />
+          <span>{user?.name} {user?.lastName}</span>
+          <button className="logout-icon-btn" onClick={onLogout}>
             <LogOut size={20} />
           </button>
         </div>
@@ -57,23 +63,54 @@ const AdminLayout = () => {
     const savedTheme = localStorage.getItem('theme');
     return savedTheme === 'dark';
   });
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Apply dark mode class to body
     document.body.classList.toggle('dark', isDarkMode);
     // Save theme preference
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-  }, [isDarkMode]);
+
+    // Fetch user data only from cookies
+    const userData = Cookies.get('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    } else {
+      navigate('/signin'); // Redirect to sign-in if no user data is found
+    }
+  }, [isDarkMode, navigate]);
 
   const toggleTheme = () => {
     setIsDarkMode(prev => !prev);
   };
 
+  const onLogout = async () => {
+    // Optional: Call the backend to invalidate the session (JWT token)
+    try {
+      await fetch("http://localhost:5000/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${Cookies.get("token")}`,
+        },
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  
+    // Clear user-related data from Cookies
+    Cookies.remove('token');
+    Cookies.remove('user');
+  
+    // Redirect to the login page
+    navigate('/signin');
+  };
+
   return (
     <div className={`admin-layout ${isDarkMode ? 'dark' : ''}`}>
-      <Sidebar isCollapsed={isCollapsed} toggleSidebar={() => setIsCollapsed(!isCollapsed)} />
+      <Sidebar isCollapsed={isCollapsed} toggleSidebar={() => setIsCollapsed(!isCollapsed)} user={user} />
       <div className="main-content">
-        <TopBar toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
+        <TopBar toggleTheme={toggleTheme} isDarkMode={isDarkMode} user={user} onLogout={onLogout} />
         <div className="content-wrapper">
           <Outlet />
         </div>
