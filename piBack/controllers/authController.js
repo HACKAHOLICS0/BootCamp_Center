@@ -17,103 +17,124 @@ const checkEmailExists = async (req, res) => {
 };
 
 const signup = async (req, res) => {
-  const { name, lastName, birthDate, phone, email, password } = req.body; // 'lastName' ici
-  const imagePath = req.file ? req.file.path : null; // Récupère le chemin de l'image téléchargée
-
-  // Validation des champs nécessaires
-  if (!name || !lastName || !birthDate || !phone || !email || !password) {  // 'lastName' ici
+    const { name, lastName, birthDate, phone, email, password } = req.body;
+    const imagePath = req.file ? req.file.path : null;
+  
+    if (!name || !lastName || !birthDate || !phone || !email || !password) {
       return res.status(400).json({ error: 'All fields are required' });
-  }
-
-  try {
-      // Vérifie si l'utilisateur existe déjà
+    }
+  
+    try {
+      // Check if the user already exists
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-          return res.status(400).json({ error: 'Email already exists' });
+        return res.status(400).json({ error: 'Email already exists' });
       }
-
-      // Hacher le mot de passe avant de le sauvegarder
+  
+      // Hash the password before saving it
       const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Créer un nouvel utilisateur
+  
+      // Create a new user
       const newUser = new User({
-          name,
-          lastName, // 'lastName' ici
-          birthDate,
-          phone,
-          email,
-          typeUser: "user", // Ajouter le type d'utilisateur
-          password: hashedPassword, // Mot de passe haché
-          image: imagePath, // Ajouter l'image
+        name,
+        lastName,
+        birthDate,
+        phone,
+        email,
+        typeUser: "user", // Add user type
+        password: hashedPassword,
+        image: imagePath,
       });
-
+  
+      // Save the user
       await newUser.save();
-      res.status(201).json({ message: 'User registered successfully' });
-  } catch (error) {
+  
+      // Generate a verification token
+      const verificationToken = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  
+      // Send verification email
+      const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+      const emailSubject = 'Verify Your Email';
+      const emailBody = `
+        <p>Hello ${newUser.name},</p>
+        <p>Thank you for registering. Please click the link below to verify your email address:</p>
+        <p><a href="${verificationLink}">Verify Email</a></p>
+        <p>If you did not request this, please ignore this email.</p>
+        <p>Best regards,</p>
+        <p>Your Team</p>
+      `;
+      await sendEmail(newUser.email, emailSubject, emailBody);
+  
+      res.status(201).json({ message: 'User registered successfully. Please check your email to verify your account.' });
+    } catch (error) {
       console.error('Error during signup:', error);
       res.status(500).json({ error: 'Internal server error' });
-  }
-};
+    }
+  };
+  
+
+  const verifyEmail = async (req, res) => {
+    const { token } = req.params;
+  
+    try {
+      // Verify the token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.userId);
+  
+      if (!user) {
+        return res.status(400).json({ message: 'User not found' });
+      }
+  
+      // Mark the user as verified
+      user.isVerified = true;
+      await user.save();
+  
+      res.status(200).json({ message: 'Email verified successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ message: 'Invalid or expired token' });
+    }
+  };
+  
 
 
 
-const signin = async (req, res) => {
-  const { email, password } = req.body;
-
-  // Validation des champs nécessaires
-  if (!email || !password) {
+  const signin = async (req, res) => {
+    const { email, password } = req.body;
+  
+    if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
-  }
-
-  try {
-      // Vérifier si l'utilisateur existe
+    }
+  
+    try {
       const user = await User.findOne({ email });
       if (!user) {
-          return res.status(400).json({ msg: 'User not found' });
+        return res.status(400).json({ msg: 'User not found' });
       }
-
-      // Vérifier le mot de passe
+  
+      if (!user.isVerified) {
+        return res.status(400).json({ msg: 'Please verify your email first' });
+      }
+  
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-          return res.status(400).json({ msg: 'Incorrect password' });
+        return res.status(400).json({ msg: 'Incorrect password' });
       }
-
-      // Générer un token JWT
+  
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-      // Enregistrer le token JWT dans un cookie sécurisé (HTTPOnly)
-      res.cookie('token', token, {
-          httpOnly: true,  // Ne peut être accédé par JavaScript
-          secure: process.env.NODE_ENV === 'production',  // Utilise 'secure' en mode production
-          sameSite: 'Strict', // Empêche les attaques CSRF
-          maxAge: 3600000, // Durée du cookie (1 heure)
-      });
-
-      // Retourner la réponse avec les informations de l'utilisateur
+      res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict', maxAge: 3600000 });
+  
       res.status(200).json({
-          msg: 'Login successful',
-          token,
-          user: {
-              id: user._id,
-              name: user.name,
-              lastName: user.lastName, // Nom de famille
-              birthDate: user.birthDate, // Date de naissance
-              phone: user.phone, // Numéro de téléphone
-              email: user.email, // Email
-              image: user.image, // Image de profil
-              state: user.state, // État de l'utilisateur (par exemple actif, inactif, etc.)
-              coursepreferences: user.coursepreferences, // Préférences de cours
-              refinterestpoints: user.refinterestpoints, // Points d'intérêt
-              refmodules: user.refmodules, // Modules de référence
-              reffriends: user.reffriends, // Amis de référence
-              typeUser: user.typeUser
-          },
+        msg: 'Login successful',
+        token,
+        user: { id: user._id, name: user.name, email: user.email },
       });
-  } catch (err) {
+    } catch (err) {
       console.error(err);
       res.status(500).json({ msg: 'Server error' });
-  }
-};
+    }
+  };
+  
 
 const authenticate = (req, res, next) => {
   const token = req.cookies.token;
@@ -385,5 +406,5 @@ const forgotPasswordEmail = async (req, res) => {
 
 
   
-  module.exports = { googleTokenAuth,signup,authenticate, signin, checkEmailExists, sendVerificationCode,editUser,getUserById, verifyCode, resetPassword, resetPasswordEmail, forgotPasswordEmail };
+  module.exports = { googleTokenAuth,signup,verifyEmail,authenticate, signin, checkEmailExists, sendVerificationCode,editUser,getUserById, verifyCode, resetPassword, resetPasswordEmail, forgotPasswordEmail };
   

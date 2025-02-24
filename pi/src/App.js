@@ -20,7 +20,7 @@ function App() {
 
   return (
     
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId="159416628447-v3dsvajrjjabmpqqtr8luo1d500bg0ur.apps.googleusercontent.com">
       <div className="App">
         <Navbar />
         <Routes>

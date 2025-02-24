@@ -11,6 +11,9 @@ router.get('/check/:email', authController.checkEmailExists);
 // Inscription (avec upload d'image)
 router.post('/signup', upload.single('image'), authController.signup);
 
+// Vérification de l'email
+router.get('/verify-email/:token', authController.verifyEmail);
+
 // Connexion
 router.post('/signin', authController.signin);
 
