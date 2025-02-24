@@ -15,11 +15,15 @@ import VerifyCodeEmail from './components/user/VerifyCodeEmail';
 import GoogleRedirectHandler from './components/user/GoogleRedirectHandler';
 import UserProfile from './components/user/UserProfile';
 
+import LearnerHelpCenter from "./components/helpcenter/LearnerHelpCenter"; // Add this import
+import AccountNotifications from "./components/helpcenter/AccountNotifications"; // Import the new component
+import PaymentsSubscriptions from "./components/helpcenter/PaymentsSubscriptions"; // Import the new component
+import "bootstrap-icons/font/bootstrap-icons.css";
+
 function App() {
   const location = useLocation();
 
   return (
-    
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <div className="App">
         <Navbar />
@@ -32,8 +36,13 @@ function App() {
           <Route path="/resetpasswordemail" element={<ResetPasswordEmail />} />      
           <Route path="/verifycodeEmail" element={<VerifyCodeEmail />} />
           <Route path="/profile" element={<UserProfile />} />
-          {/* Route pour récupérer le token de Google après redirection */}
+          {/* Route for handling the Google redirect */}
           <Route path="/google/:token" element={<GoogleRedirectHandler />} />
+          
+          <Route path="/learner-help-center" element={<LearnerHelpCenter />} />
+          <Route path="/account-notifications" element={<AccountNotifications />} />
+        <Route path="/payments-subscriptions" element={<PaymentsSubscriptions />} />
+      
         </Routes>
         {location.pathname !== "/signin" && location.pathname !== "/signup" && location.pathname !== "/forget-password" && location.pathname !== "/profile" && <Template />}
 

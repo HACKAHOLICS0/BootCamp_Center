@@ -132,3 +132,126 @@ body {
 .App {
   padding-top: 30px; /* Ajoute de l'espace entre la navbar et le contenu principal */
 }
+/* src/App.css */
+/* Add these styles at the end of the file */
+
+/* Learner Help Center Styles */
+.card {
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #5FCF80; /* Match your theme color */
+}
+
+.list-group-item {
+  border: none;
+  padding: 0.75rem 1.25rem;
+}
+
+.list-group-item a {
+  color: #1a69bc;
+  text-decoration: none;
+}
+
+.list-group-item a:hover {
+  text-decoration: underline;
+  color: #00aa33; /* Match your theme color */
+}
+/* src/App.css */
+/* Learner Help Center Styles */
+.card {
+  border: none;
+  box-shadow: 0 4px 8px rgba(122, 53, 53, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #4cb86c; /* Match your theme color */
+}
+
+.card-text {
+  font-size: 1rem;
+  color: #2a2525;
+}
+/* src/App.css */
+.card {
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #5FCF80; /* Match your theme color */
+}
+
+.card-text {
+  font-size: 1rem;
+  color: #555;
+}
+/* src/App.css */
+.clickable-card {
+  cursor: pointer; /* Change cursor to pointer on hover */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.clickable-card:hover {
+  transform: translateY(-5px); /* Slight lift effect on hover */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+}
+.community-button {
+  font-size: 12px; /* Smaller text */
+  padding: 20px 20px; /* Smaller padding */
+  border-radius: 25px; /* Rounded corners */
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+  background-color: #5FCF80; /* Custom background color */
+  border: none; /* Remove default border */
+  box-shadow: 8px 4px 6px rgba(141, 36, 36, 0.1); /* Add a subtle shadow */
+}
+
+.community-button:hover {
+  background-color: #4bbf6c; /* Darker background on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+.community-button:active {
+  transform: translateY(0); /* Reset lift effect when clicked */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Reset shadow when clicked */
+}
+/* src/App.css */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.community-button {
+  animation: pulse 2s infinite; /* Apply pulse animation */
+}
+
+.community-button:hover {
+  animation: none; /* Disable pulse animation on hover */
+}

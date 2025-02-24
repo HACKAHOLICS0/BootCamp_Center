@@ -66,6 +66,12 @@ export default function Navbar() {
                 Modules
               </Link>
             </li>
+            {/* Add the Learner Help Center button here */}
+            <li className="nav-item">
+              <Link to="/learner-help-center" className="nav-link text-dark hover-effect">
+                Learner Help Center
+              </Link>
+            </li>
             {user ? (
               <li className="nav-item d-flex">
                 <Link to="/profile" className="nav-link text-dark hover-effect">

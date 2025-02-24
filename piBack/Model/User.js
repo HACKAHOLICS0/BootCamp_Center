@@ -1,49 +1,59 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var User = new Schema({
-    name : {
-        type:String
+var UserSchema = new Schema({
+    googleId: {  // Google OAuth ID (useful for login and mapping)
+        type: String,
+        unique: true,  // Ensure it's unique to prevent duplicate accounts
+        sparse: true,   // Allows for documents without this field (non-Google users)
     },
-    lastName : {
-        type:String
+    name: {
+        type: String,
+        required: true,  // You can make it required depending on your logic
     },
-    birthDate : {
-        type:Date
+    lastName: {
+        type: String,
     },
-    email : {
-        type:String
+    birthDate: {
+        type: Date,
     },
-    phone : {
-        type:Number
+    email: {
+        type: String,
+        required: true,
+        unique: true,  // Ensure email is unique for non-Google users
     },
-    password : {
-        type:String
+    phone: {
+        type: Number,
     },
-    image : {
-        type:String
+    password: {
+        type: String,
+        required: true,  // Required if you're using local authentication
     },
-    token : {
-        type:String
+    image: {
+        type: String,
     },
-    state : {
-        type:Number
+    token: {
+        type: String,
     },
-    coursepreferences : {
-        type:[String]
+    state: {
+        type: Number,
+        default: 1,  // Default value, you can change this to match your app's state logic
     },
-    refinterestpoints : {
-        type:[String]
+    coursepreferences: {
+        type: [String],
     },
-    refmodules : {
-        type:[String]
+    refinterestpoints: {
+        type: [String],
     },
-    reffriends : {
-        type:[String]
-    },   
-    typeUser : {
-        type:String,
-    } 
+    refmodules: {
+        type: [String],
+    },
+    reffriends: {
+        type: [String],
+    },
+    typeUser: {
+        type: String,
+    },
 });
 
-module.exports = mongoose.model('user',User);
+module.exports = mongoose.model('User', UserSchema);
