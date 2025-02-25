@@ -114,6 +114,7 @@ const signin = async (req, res) => {
               reffriends: user.reffriends, // Amis de référence
               typeUser: user.typeUser
           },
+          token: token 
       });
   } catch (err) {
       console.error(err);
