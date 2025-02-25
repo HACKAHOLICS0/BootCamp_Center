@@ -23,7 +23,6 @@ cron.schedule("0 0 * * *", async () => {
     try {
         const result = await User.deleteMany({
             isVerified: false,
-            createdAt: { $gte: todayStart, $lte: todayEnd }
         });
 
         console.log(`✅ ${result.deletedCount} utilisateurs non vérifiés supprimés.`);
