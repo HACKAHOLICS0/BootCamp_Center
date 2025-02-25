@@ -20,6 +20,7 @@ import Products from './components/Admin/Products';
 import Analytics from './components/Admin/Analytics';
 import Notifications from './components/Admin/Notifications';
 import Settings from './components/Admin/Settings';
+import Quizs from './components/Admin/Quizs/QuizAdmin';
 import Points from './components/Admin/PointsOfIntrest';
 function App() {
   const location = useLocation();
@@ -54,6 +55,8 @@ function App() {
             <Route path="analytics" element={<Analytics />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="quizs" element={<Quizs />} />
+
           </Route>
         </Routes>
 

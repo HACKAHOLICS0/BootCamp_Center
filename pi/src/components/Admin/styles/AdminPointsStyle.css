@@ -59,12 +59,12 @@
   
   /* Bouton Ajouter */
   .action-btn.add {
-    background-color: #39D700;
+    background-color: #1e293b;
     color: white;
   }
   
   .action-btn.add:hover {
-    background-color: #2fa305;
+    background-color: #100060;
   }
   
   /* Bouton Modifier */
@@ -152,7 +152,7 @@
   }
   
   .modal-content .add {
-    background-color: #4caf50;
+    background-color: #40599c;
     color: white;
   }
   

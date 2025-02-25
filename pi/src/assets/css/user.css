@@ -127,24 +127,33 @@ body.modal-open {
     
     /* Pas de contour par défaut */
 }
-/* Conteneur en grille pour les cartes */
 .interest-points-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(3, 1fr); /* 3 colonnes */
     gap: 15px;
-    padding: 10px;
+    max-height: 400px; /* Limiter la hauteur */
+    overflow-y: auto; /* Activer le défilement vertical */
 }
 
-/* Style de la carte de points d'intérêt */
 .card.point-card {
-    transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
-    cursor: pointer;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
+    display: inline-block;  /* Permet à la carte de prendre la largeur du texte */
+    width: auto; /* Ajuste la largeur en fonction du contenu */
+    min-width: 200px;  /* Fixe une largeur minimale pour éviter que les cartes ne deviennent trop petites */
+    max-width: 250px;  /* Fixe une largeur maximale pour éviter des cartes trop larges */
+    padding: 10px; /* Un peu de padding pour aérer le texte */
+    font-size: 1rem;  /* Augmenter légèrement la taille de la police */
     text-align: center;
+    border: 1px solid #ccc;  /* Ajouter une bordure */
+    border-radius: 8px;  /* Arrondir les coins */
 }
+
+.card-body-point h5 {
+    word-wrap: break-word;  /* S'assurer que le texte long ne sort pas de la carte */
+    white-space: normal;  /* Permet au texte de se casser en plusieurs lignes si nécessaire */
+    font-size: 1.1rem;  /* Augmenter la taille du texte pour une meilleure lisibilité */
+    line-height: 1.5;  /* Augmenter l'interligne pour améliorer la lisibilité */
+}
+
 
 /* Effet au survol */
 .card.point-card:hover {
