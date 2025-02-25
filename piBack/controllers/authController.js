@@ -17,123 +17,176 @@ const checkEmailExists = async (req, res) => {
 };
 
 const signup = async (req, res) => {
-    const { name, lastName, birthDate, phone, email, password } = req.body;
-    const imagePath = req.file ? req.file.path : null;
-  
-    if (!name || !lastName || !birthDate || !phone || !email || !password) {
+  const { name, lastName, birthDate, phone, email, password } = req.body;
+  const imagePath = req.file ? req.file.path : null;
+
+  if (!name || !lastName || !birthDate || !phone || !email || !password) {
       return res.status(400).json({ error: 'All fields are required' });
-    }
-  
-    try {
-      // Check if the user already exists
+  }
+
+  try {
+      // Vérifier si l'utilisateur existe déjà
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return res.status(400).json({ error: 'Email already exists' });
+          return res.status(400).json({ error: 'Email already exists' });
       }
-  
-      // Hash the password before saving it
+
+      // Hacher le mot de passe
       const hashedPassword = await bcrypt.hash(password, 10);
-  
-      // Create a new user
+
+      // Générer un token de vérification unique
+      const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+      // Créer un nouvel utilisateur
       const newUser = new User({
-        name,
-        lastName,
-        birthDate,
-        phone,
-        email,
-        typeUser: "user", // Add user type
-        password: hashedPassword,
-        image: imagePath,
+          name,
+          lastName,
+          birthDate,
+          phone,
+          email,
+          password: hashedPassword,
+          image: imagePath,
+          emailVerificationToken: verificationToken, // ✅ Stocke le token
+          
       });
-  
-      // Save the user
+
+      // Sauvegarder l'utilisateur
       await newUser.save();
-  
-      // Generate a verification token
-      const verificationToken = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-  
-      // Send verification email
+
+      // Envoyer l'email de vérification
       const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
       const emailSubject = 'Verify Your Email';
       const emailBody = `
-        <p>Hello ${newUser.name},</p>
-        <p>Thank you for registering. Please click the link below to verify your email address:</p>
-        <p><a href="${verificationLink}">Verify Email</a></p>
-        <p>If you did not request this, please ignore this email.</p>
-        <p>Best regards,</p>
-        <p>Your Team</p>
-      `;
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    .container { padding: 20px; }
+                    .button {
+                        background-color: #007bff;
+                        color: white;
+                        padding: 10px 15px;
+                        text-decoration: none;
+                        display: inline-block;
+                        border-radius: 5px;
+                        margin-top: 10px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <p>Hello ${newUser.name},</p>
+                    <p>Thank you for registering. Please click the button below to verify your email address:</p>
+                    <p><a href="${verificationLink}" class="button">Verify Email</a></p>
+                    <p>If you did not request this, please ignore this email.</p>
+                    <p>Best regards,</p>
+                    <p>Your Team</p>
+                </div>
+            </body>
+            </html>
+        `;
       await sendEmail(newUser.email, emailSubject, emailBody);
-  
+
       res.status(201).json({ message: 'User registered successfully. Please check your email to verify your account.' });
-    } catch (error) {
+
+  } catch (error) {
       console.error('Error during signup:', error);
       res.status(500).json({ error: 'Internal server error' });
-    }
-  };
+  }
+};
+
+
   
 
-  const verifyEmail = async (req, res) => {
-    const { token } = req.params;
-  
-    try {
-      // Verify the token
+const verifyEmail = async (req, res) => {
+  const { token } = req.params;
+  console.log("Received token:", token); // ✅ Affiche le token reçu
+
+  try {
+      // Vérifier le token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.userId);
-  
+      console.log("Decoded token:", decoded); // ✅ Affiche les infos du token
+
+      // Trouver l'utilisateur avec ce token et cet email
+      const user = await User.findOne({ email: decoded.email, emailVerificationToken: token });
+      console.log("Found user:", user); // ✅ Affiche l'utilisateur trouvé ou null
+
       if (!user) {
-        return res.status(400).json({ message: 'User not found' });
+          return res.status(400).json({ message: 'Invalid or expired token' });
       }
-  
-      // Mark the user as verified
+
+      // Mettre à jour l'utilisateur comme vérifié
       user.isVerified = true;
+      user.emailVerificationToken = null; // ✅ Supprime le token après vérification
       await user.save();
-  
+
+      console.log("User updated:", user); // ✅ Vérifie si l'utilisateur est bien mis à jour
+
       res.status(200).json({ message: 'Email verified successfully' });
-    } catch (error) {
-      console.error(error);
+
+  } catch (error) {
+      console.error("Token verification error:", error);
       res.status(400).json({ message: 'Invalid or expired token' });
-    }
-  };
+  }
+};
   
 
 
 
-  const signin = async (req, res) => {
-    const { email, password } = req.body;
-  
-    if (!email || !password) {
+const signin = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
-    }
-  
-    try {
+  }
+
+  try {
       const user = await User.findOne({ email });
+
       if (!user) {
-        return res.status(400).json({ msg: 'User not found' });
+          return res.status(400).json({ msg: 'User not found' });
       }
-  
+
       if (!user.isVerified) {
-        return res.status(400).json({ msg: 'Please verify your email first' });
+          return res.status(400).json({ msg: 'Please verify your email first' });
       }
-  
+
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res.status(400).json({ msg: 'Incorrect password' });
+          return res.status(400).json({ msg: 'Incorrect password' });
       }
-  
+
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
       res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict', maxAge: 3600000 });
-  
+
       res.status(200).json({
-        msg: 'Login successful',
-        token,
-        user: { id: user._id, name: user.name, email: user.email },
+          msg: 'Login successful',
+          token,
+          user: {
+            id: user._id,
+            name: user.name,
+            lastName: user.lastName, // Nom de famille
+            birthDate: user.birthDate, // Date de naissance
+            phone: user.phone, // Numéro de téléphone
+            email: user.email, // Email
+            image: user.image, // Image de profil
+            state: user.state, // État de l'utilisateur (par exemple actif, inactif, etc.)
+            coursepreferences: user.coursepreferences, // Préférences de cours
+            refinterestpoints: user.refinterestpoints, // Points d'intérêt
+            refmodules: user.refmodules, // Modules de référence
+            reffriends: user.reffriends, // Amis de référence
+            typeUser: user.typeUser,
+            isVerified: user.isVerified
+        },
       });
-    } catch (err) {
+
+  } catch (err) {
       console.error(err);
       res.status(500).json({ msg: 'Server error' });
-    }
-  };
+  }
+};
+
+
   
 
 const authenticate = (req, res, next) => {

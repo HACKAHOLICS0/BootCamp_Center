@@ -12,7 +12,7 @@ router.get('/check/:email', authController.checkEmailExists);
 router.post('/signup', upload.single('image'), authController.signup);
 
 // Vérification de l'email
-router.get('/verify-email/:token', authController.verifyEmail);
+router.post('/verify-email/:token', authController.verifyEmail);
 
 // Connexion
 router.post('/signin', authController.signin);

@@ -45,7 +45,14 @@ var User = new Schema({
     },
     reffriends : {
         type:[String]
-    },   
+    },
+    isVerified: { 
+        type: Boolean, 
+        default: false  // <-- Add this field
+    },  
+    emailVerificationToken: {
+        type: String
+    }, 
     typeUser : {
         type:String,
     } 
