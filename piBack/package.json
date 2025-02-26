@@ -30,6 +30,7 @@
     "passport-google-oauth20": "^2.0.0",
     "piback": "file:",
     "pifull": "file:",
+    "python-shell": "^5.0.0",
     "twilio": "^5.4.4"
   }
 }

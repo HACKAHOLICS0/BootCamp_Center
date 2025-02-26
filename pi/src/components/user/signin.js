@@ -16,16 +16,16 @@ export default function Signin() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/signin", {
+      const response = await fetch("http://localhost:5001/api/auth/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
+    
       });
 
       const data = await response.json();
-
       if (response.ok) {
         Cookies.set("token", data.token, { expires: 7 }); // Expire dans 7 jours
         Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
@@ -46,7 +46,7 @@ export default function Signin() {
   };
 
   const handleGoogleLoginSuccess = async (credentialResponse) => {
-    window.location.href = "http://localhost:5000/api/auth/google";
+    window.location.href = "http://localhost:5001/api/auth/google";
   };
 
   return (

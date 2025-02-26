@@ -12,6 +12,7 @@ const { initializePoints } = require('./controllers/intrestpoint'); // Ton contr
 const interestPointRoutes = require('./routes/intrestRoutes'); // Assurez-vous que le chemin est correct
 // Charger les variables d'environnement
 dotenv.config({ path: "./config/.env" });
+const quizRoutes=require('./routes/quizRoutes');
 
 const app = express();
 
@@ -37,11 +38,14 @@ mongoose.connect(process.env.MONGO_URI, {
   console.error("Erreur lors de la connexion à MongoDB:", err);
 });
 
+
+
 // Routes d'authentification
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 const interestPointModel = require('./Model/Interestpoint'); // Assure-toi d'importer ton modèle
 app.use('/api', interestPointRoutes);
+app.use('/api/quiz',quizRoutes)
 app.get('/api/points', async (req, res) => {
     try {
         const points = await interestPointModel.find();
@@ -57,7 +61,7 @@ app.all("*", (req, res) => {
 });
 
 // Démarrer le serveur
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5001;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

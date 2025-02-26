@@ -83,11 +83,12 @@ const signin = async (req, res) => {
 
       // Enregistrer le token JWT dans un cookie sécurisé (HTTPOnly)
       res.cookie('token', token, {
-          httpOnly: true,  // Ne peut être accédé par JavaScript
-          secure: process.env.NODE_ENV === 'production',  // Utilise 'secure' en mode production
-          sameSite: 'Strict', // Empêche les attaques CSRF
-          maxAge: 3600000, // Durée du cookie (1 heure)
+        httpOnly: true,  // Ne peut être accédé par JavaScript
+        secure: 'production',  // Utilise 'secure' uniquement en production
+        sameSite: 'Strict', // Empêche les attaques CSRF
+        maxAge: 3600000, // Durée du cookie (1 heure)
       });
+    
 
       // Retourner la réponse avec les informations de l'utilisateur
       res.status(200).json({
@@ -105,8 +106,8 @@ const signin = async (req, res) => {
               refinterestpoints: user.refinterestpoints, // Points d'intérêt
               refmodules: user.refmodules, // Modules de référence
               reffriends: user.reffriends, // Amis de référence
-              typeUser: user.typeUser
-          },
+              typeUser: user.typeUser,
+            },
       });
   } catch (err) {
       console.error(err);

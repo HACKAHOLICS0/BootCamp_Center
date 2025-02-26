@@ -12,7 +12,7 @@ import "../../../assets/css/styleQuiz.css";
 
 // États manquants
 
-const backendURL = "http://localhost:5000";
+const backendURL = "http://localhost:5001/api";
 
 const QuizAdmin = () => {
     const [Quizselected, setQuizselected] = useState(null);
@@ -59,58 +59,82 @@ const ShowAddQuestion = () => {
     }, []);
 
     // Charger le module
-    useEffect(() => {
-        const fetchModule = async () => {
-            if (!user || !user.token) return;
+   
+useEffect(() => {
 
-            try {
-                const response = await fetch(`${backendURL}/cours/getModuleofcours/${idModule}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${user.token}`
-                    }
-                });
+ 
+      // Charger les quiz
+      const fetchQuizzes = async () => {
+          try {
+              console.log("Fetching quizzes...");
 
-                if (!response.ok) {
-                    throw new Error("Échec du chargement du module");
-                }
+              const response = await fetch(`${backendURL}/quiz/findall`, {
+                  method: 'GET',
+               
+              });
 
-                const data = await response.json();
-                setModule(data);
-            } catch (err) {
-                setError(err.message);
-            }
-        };
+              // Vérification de la réponse
+              console.log("Response object:", response);
 
-        fetchModule();
-    }, [idModule, user]);
+              if (!response.ok) {
+                  throw new Error("Échec du chargement des quiz");
+              }
+
+              // Parser la réponse en JSON
+              const data = await response.json();
+              console.log("Data received:", data); // Vérifier ce que vous recevez
+
+              // Mettre à jour l'état avec les données reçues
+              setQuizzes(data);
+          } catch (err) {
+              setError(err.message);
+          }
+      };
+
+      fetchQuizzes();
+
+  
+}, []);
 
     // Charger les quiz
     useEffect(() => {
-        const fetchQuizzes = async () => {
-            if (!user || !user.token) return;
-
-            try {
-                const response = await fetch(`${backendURL}/quiz/${idModule}/findall`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${user.token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error("Échec du chargement des quiz");
-                }
-
-                const data = await response.json();
-                setQuizzes(data);
-            } catch (err) {
-                setError(err.message);
-            }
-        };
-
+      const fetchQuizzes = async () => {
+       
+          try {
+              const response = await fetch(`${backendURL}/quiz/findall`, {
+                  method: 'GET',
+             
+              });
+  
+              // Affichage de la réponse brute pour déboguer
+              console.log("Response object:", response);
+  
+              // Vérifier que la réponse est correcte
+              if (!response.ok) {
+                  throw new Error("Échec du chargement des quiz");
+              }
+  
+              // Parser la réponse en JSON
+              const data = await response.json();
+              console.log("Data received:", data); // Vérifier ce que vous recevez
+  
+              // Mettre à jour l'état avec les données reçues
+              setQuizzes(data);
+          } catch (err) {
+              setError(err.message);
+          }
+      };
+  
+      fetchQuizzes();
+      if (reloadquiz) {
+        // Fetch quizzes again or perform any other action to reload
+        // Assuming `fetchQuizzes` is the function that loads quizzes
         fetchQuizzes();
-    }, [idModule, user]);
+        // Reset reloadquiz to false after the quizzes are fetched
+        setReloadquiz(false);
+    }
+  }, [user],[reloadquiz]);
+  
 
     // Vérifier si l'utilisateur est propriétaire du module
     useEffect(() => {
@@ -126,16 +150,13 @@ const ShowAddQuestion = () => {
 
         if (!event.target.checked) {
             try {
-                if (!user || !user.token) {
-                    throw new Error("User is not authenticated");
-                }
+             
 
                 const response = await fetch(`${backendURL}/quiz/update`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${user.token}`
-                    },
+                  },
                     body: JSON.stringify({
                         id: quizSelected._id,
                         chrono: false,
@@ -161,16 +182,13 @@ const ShowAddQuestion = () => {
         if (event.key === 'Enter') {
           try {
             // Vérifier si l'utilisateur est défini
-            if (!user || !user.token) {
-              throw new Error("User is not authenticated");
-            }
+          
       
             const response = await fetch(`${backendURL}/quiz/update`, {
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user.token}` // Utilisation du token stocké dans `user`
-              },
+            },
               body: JSON.stringify({
                 id: Quizselected._id,
                 title: event.target.value
@@ -193,16 +211,12 @@ const ShowAddQuestion = () => {
           if (event.target.value > 0) {
             try {
               // Vérifier si l'utilisateur est défini
-              if (!user || !user.token) {
-                throw new Error("User is not authenticated");
-              }
-      
+         
               const response = await fetch(`${backendURL}/quiz/update`, {
                 method: 'PATCH',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${user.token}` // Utilisation du token stocké dans `user`
-                },
+              },
                 body: JSON.stringify({
                   id: Quizselected._id,
                   chrono: checked,
@@ -228,9 +242,7 @@ const ShowAddQuestion = () => {
       async function AddQuestionEvent(data, responses, code, language) {
         try {
           // Vérifier si l'utilisateur est authentifié
-          if (!user || !user.token) {
-            throw new Error("User is not authenticated");
-          }
+      
       
           // Construire le corps de la requête
           const requestBody = {
@@ -249,8 +261,7 @@ const ShowAddQuestion = () => {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${user.token}` // Authentification avec le token
-            },
+           },
             body: JSON.stringify(requestBody),
           });
       
@@ -264,13 +275,10 @@ const ShowAddQuestion = () => {
           console.error("Error adding question:", err.message);
         }
       }
-      
+
       async function addQuizFn(data, timer) {
         try {
-          // Vérifier si l'utilisateur est authentifié
-          if (!user || !user.token) {
-            throw new Error("User is not authenticated");
-          }
+       
       
           // Construire le corps de la requête
           const requestBody = { title: data.title };
@@ -281,12 +289,11 @@ const ShowAddQuestion = () => {
             requestBody.chronoVal = data.chrono;
           }
       
-          const response = await fetch(`${backendURL}/quiz/${idModule}/create`, {
+          const response = await fetch(`${backendURL}/quiz/1/create`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${user.token}` // Authentification avec le token
-            },
+           },
             body: JSON.stringify(requestBody),
           });
       
@@ -294,7 +301,7 @@ const ShowAddQuestion = () => {
             throw new Error("Failed to create quiz");
           }
       
-          reloadquiz();
+          setReloadquiz(true);
           setopenAdd(false);
         } catch (err) {
           console.error("Error creating quiz:", err.message);

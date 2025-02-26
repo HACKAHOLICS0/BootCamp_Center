@@ -19,14 +19,14 @@ const Sidebar = ({ isCollapsed, toggleSidebar, user }) => {
           <li><Link to="/admin"><Home size={20} /> <span>Dashboard</span></Link></li>
           <li><Link to="/admin/users"><Users size={20} /> <span>Users</span></Link></li>
           <li><Link to="/admin/Points"><Package size={20} /> <span>Points Of Intrste</span></Link></li>
+          <li><Link to="/admin/quizs"><BookOpen size={20} /> <span>Quizs</span></Link></li>
          
          
          <li><Link to="/admin/products"><Package size={20} /> <span>Products</span></Link></li>
           <li><Link to="/admin/analytics"><BarChart2 size={20} /> <span>Analytics</span></Link></li>
           <li><Link to="/admin/notifications"><Bell size={20} /> <span>Notifications</span></Link></li>
           <li><Link to="/admin/settings"><Settings size={20} /> <span>Settings</span></Link></li>
-          <li><Link to="/admin/quizs"><BookOpen size={20} /> <span>Quizs</span></Link></li>
-          </ul>
+        </ul>
       </nav>
     </div>
   );
@@ -91,7 +91,7 @@ const AdminLayout = () => {
   const onLogout = async () => {
     // Optional: Call the backend to invalidate the session (JWT token)
     try {
-      await fetch("http://localhost:5000/api/auth/logout", {
+      await fetch("http://localhost:5001/api/auth/logout", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${Cookies.get("token")}`,
