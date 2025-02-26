@@ -14,6 +14,7 @@ router.get('/check/:email', authController.checkEmailExists);
 
 // Inscription (avec upload d'image)
 router.post('/signup', upload.single('image'), authController.signup);
+router.post('/verify-email/:token', authController.verifyEmail);
 
 // Connexion
 router.post('/signin', authController.signin);
@@ -57,4 +58,26 @@ router.put("/:id", upload.single('image'), authController.editUser);
 router.get("/:id", authController.getUserById);
 
 
+<<<<<<< HEAD
 module.exports = router;
+=======
+router.get('/github/callback', passport.authenticate('github', { failureRedirect: '/signin' }), (req, res) => {
+  // Utilisateur récupéré après la redirection GitHub
+  const user = req.user.user || req.user; // Correction pour s'assurer de récupérer l'utilisateur
+
+  if (!user || !user._id) {
+    return res.status(400).json({ error: 'User ID not found or invalid' });
+  }
+
+  // Générer un token JWT
+  const token = jwt.sign({ id: user._id.toString() }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+  // Rediriger vers le frontend avec le token dans l'URL
+  res.redirect(`http://localhost:3000/?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
+});
+
+
+
+
+module.exports = router;
+>>>>>>> f7422f2b011fcbd9bdcec2e116826ff27837e8cc

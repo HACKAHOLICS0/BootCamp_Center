@@ -14,6 +14,7 @@ import ResetPasswordEmail from './components/user/ResetPasswordEmail';
 import VerifyCodeEmail from './components/user/VerifyCodeEmail';
 import GoogleRedirectHandler from './components/user/GoogleRedirectHandler';
 import UserProfile from './components/user/UserProfile';
+import VerifyEmailPage from './components/user/VerifyEmailPage';
 
 import LearnerHelpCenter from "./components/helpcenter/LearnerHelpCenter"; // Add this import
 import AccountNotifications from "./components/helpcenter/AccountNotifications"; // Import the new component
@@ -36,13 +37,9 @@ function App() {
           <Route path="/resetpasswordemail" element={<ResetPasswordEmail />} />      
           <Route path="/verifycodeEmail" element={<VerifyCodeEmail />} />
           <Route path="/profile" element={<UserProfile />} />
-          {/* Route for handling the Google redirect */}
           <Route path="/google/:token" element={<GoogleRedirectHandler />} />
-          
-          <Route path="/learner-help-center" element={<LearnerHelpCenter />} />
-          <Route path="/account-notifications" element={<AccountNotifications />} />
-        <Route path="/payments-subscriptions" element={<PaymentsSubscriptions />} />
-      
+          <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+
         </Routes>
         {location.pathname !== "/signin" && location.pathname !== "/signup" && location.pathname !== "/forget-password" && location.pathname !== "/profile" && <Template />}
 
