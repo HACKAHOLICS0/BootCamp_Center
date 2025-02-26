@@ -22,11 +22,13 @@ import Notifications from './components/Admin/Notifications';
 import Settings from './components/Admin/Settings';
 import Quizs from './components/Admin/Quizs/QuizAdmin';
 import Points from './components/Admin/PointsOfIntrest';
+import VerifyEmailPage from './components/user/VerifyEmailPage';
+
 function App() {
   const location = useLocation();
   
-  // Vérifier si la route actuelle correspond à une route admin
   const isAdminRoute = location.pathname.startsWith("/admin");
+  const showTemplate = location.pathname === "/" || location.pathname === "/home";
 
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
@@ -35,6 +37,8 @@ function App() {
         {!isAdminRoute && <Navbar />}
         
         <Routes>
+          <Route path="/" element={<Template />} />
+          <Route path="/home" element={<Template />} />
           <Route path="/signin" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forget-password" element={<ForgotPassword />} />
@@ -43,9 +47,9 @@ function App() {
           <Route path="/resetpasswordemail" element={<ResetPasswordEmail />} />      
           <Route path="/verifycodeEmail" element={<VerifyCodeEmail />} />
           <Route path="/profile" element={<UserProfile />} />
-          {/* Route pour récupérer le token de Google après redirection */}
           <Route path="/google/:token" element={<GoogleRedirectHandler />} />
-          
+          <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+
           {/* Routes Admin */}
           <Route path="/admin/*" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
@@ -56,12 +60,11 @@ function App() {
             <Route path="notifications" element={<Notifications />} />
             <Route path="settings" element={<Settings />} />
             <Route path="quizs" element={<Quizs />} />
-
           </Route>
         </Routes>
 
-        {/* Ne pas afficher le Template ni le Footer si c'est une route Admin */}
-        {!isAdminRoute && location.pathname !== "/signin" && location.pathname !== "/signup" && location.pathname !== "/forget-password" && location.pathname !== "/profile" && <Template />}
+        {/* Afficher Template uniquement sur les routes '/' et '/home' */}
+        {showTemplate && <Template />}
         
         {/* Ne pas afficher le Footer si c'est une route Admin */}
         {!isAdminRoute && <Footer />}
@@ -69,6 +72,5 @@ function App() {
     </GoogleOAuthProvider>
   );
 }
-
 
 export default App;

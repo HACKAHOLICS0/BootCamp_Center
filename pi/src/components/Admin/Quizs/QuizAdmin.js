@@ -309,7 +309,9 @@ useEffect(() => {
       }      
   
  return (
-    
+  <div className="content-section">
+  <h2>Quiz Management</h2>
+
      <div>{!module&&quizzes&&
     <div>
     <div class="row mt-5 mx-auto" >
@@ -333,9 +335,14 @@ useEffect(() => {
      </Card>
      </Collapse>
      
-     <a class="btn  col-12 btncustom mb-3" onClick={()=>{
-       history.push("/module/"+idModule+"/QuizResults");
-     }}>Show Results</a>
+ {/* 
+<a className="btn col-12 btncustom mb-3" onClick={() => {
+    history.push("/module/" + idModule + "/QuizResults");
+}}>
+    Show Results
+</a> 
+*/}
+
      <Collapse in={ShowAddQuestion}>
      <Card className="mb-3">
        <Card.Header>{Quizselected&& <Card.Title style={{"textAlign":"center"}}>{Quizselected.title}</Card.Title>}</Card.Header>
@@ -478,6 +485,7 @@ useEffect(() => {
          </div>
         </div>
         </div>}
+        </div>
         </div>);
 
 }

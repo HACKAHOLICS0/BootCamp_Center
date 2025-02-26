@@ -34,6 +34,7 @@ const signup = async (req, res) => {
 
       // Hacher le mot de passe avant de le sauvegarder
       const hashedPassword = await bcrypt.hash(password, 10);
+      const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
       // Créer un nouvel utilisateur
       const newUser = new User({
@@ -45,16 +46,84 @@ const signup = async (req, res) => {
           typeUser: "user", // Ajouter le type d'utilisateur
           password: hashedPassword, // Mot de passe haché
           image: imagePath, // Ajouter l'image
+          emailVerificationToken: verificationToken, // ✅ Stocke le token
+
       });
 
       await newUser.save();
-      res.status(201).json({ message: 'User registered successfully' });
+          // Envoyer l'email de vérification
+          const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+          const emailSubject = 'Verify Your Email';
+          const emailBody = `
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        .container { padding: 20px; }
+                        .button {
+                            background-color: #007bff;
+                            color: white;
+                            padding: 10px 15px;
+                            text-decoration: none;
+                            display: inline-block;
+                            border-radius: 5px;
+                            margin-top: 10px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <p>Hello ${newUser.name},</p>
+                        <p>Thank you for registering. Please click the button below to verify your email address:</p>
+                        <p><a href="${verificationLink}" class="button">Verify Email</a></p>
+                        <p>If you did not request this, please ignore this email.</p>
+                        <p>Best regards,</p>
+                        <p>Your Team</p>
+                    </div>
+                </body>
+                </html>
+            `;
+          await sendEmail(newUser.email, emailSubject, emailBody);
+    
+          res.status(201).json({ message: 'User registered successfully. Please check your email to verify your account.' });
   } catch (error) {
       console.error('Error during signup:', error);
       res.status(500).json({ error: 'Internal server error' });
   }
 };
 
+const verifyEmail = async (req, res) => {
+  const { token } = req.params;
+  console.log("Received token:", token); // ✅ Affiche le token reçu
+
+  try {
+      // Vérifier le token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log("Decoded token:", decoded); // ✅ Affiche les infos du token
+
+      // Trouver l'utilisateur avec ce token et cet email
+      const user = await User.findOne({ email: decoded.email, emailVerificationToken: token });
+      console.log("Found user:", user); // ✅ Affiche l'utilisateur trouvé ou null
+
+      if (!user) {
+          return res.status(400).json({ message: 'Invalid or expired token' });
+      }
+
+      // Mettre à jour l'utilisateur comme vérifié
+      user.isVerified = true;
+      user.emailVerificationToken = null; // ✅ Supprime le token après vérification
+      await user.save();
+
+      console.log("User updated:", user); // ✅ Vérifie si l'utilisateur est bien mis à jour
+
+      res.status(200).json({ message: 'Email verified successfully' });
+
+  } catch (error) {
+      console.error("Token verification error:", error);
+      res.status(400).json({ message: 'Invalid or expired token' });
+  }
+};
+  
 
 
 const signin = async (req, res) => {
@@ -71,7 +140,9 @@ const signin = async (req, res) => {
       if (!user) {
           return res.status(400).json({ msg: 'User not found' });
       }
-
+      if (!user.isVerified) {
+        return res.status(400).json({ msg: 'Please verify your email first' });
+    }
       // Vérifier le mot de passe
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
@@ -83,16 +154,16 @@ const signin = async (req, res) => {
 
       // Enregistrer le token JWT dans un cookie sécurisé (HTTPOnly)
       res.cookie('token', token, {
-        httpOnly: true,  // Ne peut être accédé par JavaScript
-        secure: 'production',  // Utilise 'secure' uniquement en production
-        sameSite: 'Strict', // Empêche les attaques CSRF
-        maxAge: 3600000, // Durée du cookie (1 heure)
+          httpOnly: true,  // Ne peut être accédé par JavaScript
+          secure: process.env.NODE_ENV === 'production',  // Utilise 'secure' en mode production
+          sameSite: 'Strict', // Empêche les attaques CSRF
+          maxAge: 3600000, // Durée du cookie (1 heure)
       });
-    
 
       // Retourner la réponse avec les informations de l'utilisateur
       res.status(200).json({
           msg: 'Login successful',
+          token,
           user: {
               id: user._id,
               name: user.name,
@@ -107,7 +178,9 @@ const signin = async (req, res) => {
               refmodules: user.refmodules, // Modules de référence
               reffriends: user.reffriends, // Amis de référence
               typeUser: user.typeUser,
-            },
+              isVerified: user.isVerified
+
+          },
       });
   } catch (err) {
       console.error(err);
@@ -131,6 +204,7 @@ const authenticate = (req, res, next) => {
       return res.status(401).json({ msg: 'Token is not valid' });
   }
 };
+
 const editUser = async (req, res) => {
   try {
       const { name, lastName, birthDate, phone, email, password } = req.body;
@@ -269,35 +343,83 @@ const resetPassword = async (req, res) => {
  * Nouvelle fonction : Envoi du code de vérification par e-mail uniquement pour la réinitialisation du mot de passe
  */
 const forgotPasswordEmail = async (req, res) => {
-    const { email } = req.body;
-  
-    try {
+  const { email } = req.body;
+
+  try {
       if (!email) {
-        return res.status(400).json({ message: "L'email est requis" });
+          return res.status(400).json({ message: "L'email est requis" });
       }
-  
+
       // Recherche de l'utilisateur par e-mail
       const user = await User.findOne({ email });
       if (!user) {
-        return res.status(404).json({ message: 'Utilisateur non trouvé' });
+          return res.status(404).json({ message: 'Utilisateur non trouvé' });
       }
-  
+
       // Génération d'un code de vérification à 6 chiffres
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-  
+
       // Sauvegarde du code dans la base de données
       user.verificationCode = verificationCode;
       await user.save();
-  
-      // Envoi du code par e-mail
-      await sendEmail(email, 'Réinitialisation de mot de passe - Code de vérification', `Votre code de vérification est : ${verificationCode}`);
-  
+
+      // Contenu amélioré du mail
+      const emailSubject = '🔐 Réinitialisation de votre mot de passe';
+      const emailBody = `
+  <html>
+    <head>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.5;
+          color: #333;
+        }
+        .container {
+          padding: 20px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          max-width: 500px;
+          margin: auto;
+          background-color: #f9f9f9;
+        }
+        .code {
+          font-size: 20px;
+          font-weight: bold;
+          color: #d9534f;
+        }
+        .footer {
+          margin-top: 20px;
+          font-size: 14px;
+          color: #777;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <p>Hello ${user.name},</p>
+        <p>We received a password reset request for your account.</p>
+        <p>Your verification code is: <span class="code">${verificationCode}</span></p>
+        <p>Please enter this code in the application to proceed with resetting your password.</p>
+        <p>If you did not request this, you can safely ignore this email.</p>
+        <p class="footer">Best regards,<br>CAMPX Team</p>
+      </div>
+    </body>
+  </html>
+`;
+
+
+      
+
+      // Envoi du mail avec format HTML
+      await sendEmail(email, emailSubject, emailBody);
+
       res.status(200).json({ message: 'Code de vérification envoyé par e-mail' });
-    } catch (error) {
+  } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Erreur interne du serveur' });
-    }
-  };
+  }
+};
+
   
   /**
    * Nouvelle fonction : Réinitialisation du mot de passe après vérification par e-mail
@@ -329,8 +451,42 @@ const forgotPasswordEmail = async (req, res) => {
     }
   };
 
+  const googleTokenAuth = async (req, res) => {
+    try {
+        const { token } = req.body;
+        const decoded = jwt.decode(token);
+
+        let user = await User.findOne({ email: decoded.email });
+
+        if (!user) {
+            user = new User({
+                googleId: decoded.sub,
+                name: decoded.name,
+                email: decoded.email,
+                typeUser: "user",
+                image: decoded.picture, // Stocke l'URL de la photo de profil Google
+            });
+            await user.save();
+        } else {
+            // Met à jour l'image de l'utilisateur avec l'image Google s'il n'a pas déjà une image locale
+            if (!user.image || user.image.startsWith("uploads/")) {
+                user.image = decoded.picture;
+                await user.save();
+            }
+        }
+
+        const appToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+            expiresIn: "1h",
+        });
+
+        res.json({ token: appToken, user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Erreur d'authentification Google" });
+    }
+};
 
 
   
-  module.exports = { signup,authenticate, signin, checkEmailExists, sendVerificationCode,editUser,getUserById, verifyCode, resetPassword, resetPasswordEmail, forgotPasswordEmail };
+  module.exports = { googleTokenAuth,signup,authenticate, signin, checkEmailExists,verifyEmail, sendVerificationCode,editUser,getUserById, verifyCode, resetPassword, resetPasswordEmail, forgotPasswordEmail };
   

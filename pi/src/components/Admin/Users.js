@@ -47,6 +47,7 @@ const Users = () => {
   };
 
   const getImageUrl = (imagePath) => {
+    console.log("Image path:", imagePath); 
     return imagePath ? `http://localhost:5001/${imagePath.replace(/\\/g, "/")}` : "/uploads/avatar7.png";
 };
   return (

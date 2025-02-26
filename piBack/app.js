@@ -4,16 +4,25 @@ const cors = require("cors");
 const passport = require("passport");
 const mongoose = require('mongoose');
 const adminRoutes = require("./routes/AdminRoutes"); 
-require("./utils/passport"); // Configuration Passport
+ // Configuration Passport
 const bodyParser = require("body-parser");
 const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const { initializePoints } = require('./controllers/intrestpoint'); // Ton contrôleur pour les points d'intérêt
 const interestPointRoutes = require('./routes/intrestRoutes'); // Assurez-vous que le chemin est correct
+const cookieParser = require('cookie-parser');
+
+require("./utils/passport");
+
+
+require("./utils/passport1") // Pass the app to githubAuth.js
+
+
 // Charger les variables d'environnement
 dotenv.config({ path: "./config/.env" });
 const quizRoutes=require('./routes/quizRoutes');
-
+const session = require("express-session"); // Importation de express-session
+const jwt = require('jsonwebtoken');
 const app = express();
 
 app.use(cors());
@@ -39,6 +48,15 @@ mongoose.connect(process.env.MONGO_URI, {
 });
 
 
+app.use(session({
+  secret: process.env.SESSION_SECRET, // Vous pouvez mettre cette valeur dans votre fichier .env
+  resave: false, 
+  saveUninitialized: true, 
+  cookie: { secure: false } // Mettre 'true' si vous utilisez HTTPS
+}));
+const SECRET_KEY = "6LebIeMqAAAAAH51qBo0r1Q87u1FxnysnflAv6rb"; 
+app.use(cookieParser());
+app.use(passport.initialize());
 
 // Routes d'authentification
 app.use("/api/auth", authRoutes);
