@@ -16,7 +16,7 @@ const InterestPoints = () => {
   useEffect(() => {
     const fetchPoints = async () => {
       try {
-        const response = await fetch(`${backendURL}/api/interest-points`); // API pour récupérer les points
+        const response = await fetch(`${backendURL}/api/interest-points-admin`); // API pour récupérer les points
         if (!response.ok) {
           throw new Error("Failed to fetch interest points");
         }

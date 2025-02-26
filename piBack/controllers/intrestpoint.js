@@ -32,13 +32,23 @@ const initializePoints = async () => {
 // Fonction pour récupérer les points d'intérêt
 async function getInterestPoints(req, res) {
     try {
-        const points = await interestPointModel.find();
+        const points = await interestPointModel.find({ isActive: true });
         res.status(200).json(points);
     } catch (err) {
         console.error("Erreur lors de la récupération des points d'intérêt:", err);
         res.status(500).json({ message: "Erreur serveur lors de la récupération des points d'intérêt" });
     }
 }
+async function getInterestPointforadmin(req, res) {
+    try {
+        const points = await interestPointModel.find({  });
+        res.status(200).json(points);
+    } catch (err) {
+        console.error("Erreur lors de la récupération des points d'intérêt:", err);
+        res.status(500).json({ message: "Erreur serveur lors de la récupération des points d'intérêt" });
+    }
+}
+
 
 // Fonction pour mettre à jour les points d'intérêt d'un utilisateur
 async function updateUserInterestPoints(req, res) {
@@ -198,4 +208,4 @@ const updateInterestPoint = async (req, res) => {
 
 
 
-module.exports = { initializePoints, getInterestPoints, updateUserInterestPoints, deleteUserInterestPoint,updateInterestPointActivation, addInterestPoint,updateInterestPoint };
+module.exports = { initializePoints, getInterestPoints, updateUserInterestPoints, deleteUserInterestPoint,updateInterestPointActivation, addInterestPoint,updateInterestPoint ,getInterestPointforadmin};
