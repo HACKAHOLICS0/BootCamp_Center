@@ -1,6 +1,7 @@
 import "../../assets/css/user.css";
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const backendURL = "http://localhost:5000";
 
@@ -289,8 +290,8 @@ const [pointToDelete, setPointToDelete] = useState(null);
                         <div className="col-md-4 mb-3 d-flex align-items-stretch">
                             <div className="card card-user w-100">
                                 <div className="card-body-user text-center">
-                                    <img src={getImageUrl(user.image)} className="rounded-circle" width="200" alt="User Avatar" />
-                                    <div className="mt-3">
+                                <img src={getImageUrl(user.image)} className="rounded-circle image-with-margin" width="200" alt="User Avatar" />
+                                <div className="mt-3">
                                         <h4>{user.name || "User"}</h4>
                                     </div>
                                 </div>
@@ -311,11 +312,12 @@ const [pointToDelete, setPointToDelete] = useState(null);
                                             <hr />
                                         </React.Fragment>
                                     ))}
-                                    <div className="text-end mt-3">
-                                        <button className="edit-button" onClick={handleEditUser}>
-                                            Edit
-                                        </button>
-                                    </div>
+                                     <div className="text-end mt-3">
+            <button className="edit-button" onClick={handleEditUser}>
+                <i className="fa fa-edit"></i> {/* Icône d'édition */}
+              
+            </button>
+        </div>
                                 </div>
                             </div>
                         </div>
@@ -351,73 +353,76 @@ const [pointToDelete, setPointToDelete] = useState(null);
         <p>No points of interest available.</p>
     )}
 </div>
+<div className="text-end mt-3 me-3">
+    <button className="edit-button" onClick={openInterestPointModal}>
+        <i className="bi bi-plus"></i> {/* Icône + */}
+    </button>
+</div>
 
-                                <div className="text-end mt-3 me-3">
-                                    <button className="edit-button" onClick={openInterestPointModal}>
-                                        Add
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {isModalOpen && (
-                    <div className="modal-overlay">
-                        <div className="modal-content">
-                            <span className="close" onClick={closeModal}>&times;</span>
-                            <h4>Edit User Information</h4>
-{Object.keys(editableUser).map((key, index) => (
-
-                                <div key={index} className="form-group">
-                                    <label>{key.replace(/([A-Z])/g, ' $1')}</label>
-                                    <input
-                                        type={key === "birthDate" ? "date" : "text"}
-                                        className="form-control"
-                                        value={editableUser[key]}
-                                        onChange={(e) => {
-                                            setEditableUser({ ...editableUser, [key]: e.target.value });
-                                            validateField(key);
-                                        }}
-                                    />
-                                    {errors[key] && <small className="text-danger">{errors[key]}</small>}
-                                </div>
-                            ))}
-                            <div className="text-end mt-3">
-                                <button className="save-button" onClick={handleSaveUser} disabled={!isFormValid}>
-                                    Save
-                                </button>
-                            </div>
-                        </div>
+    <div className="edit-modal-overlay">
+        <div className="edit-modal-content">
+            <span className="edit-modal-close" onClick={closeModal}>&times;</span>
+            <h4 className="edit-modal-title">Edit User Information</h4>
+            <form className="edit-modal-form">
+                {Object.keys(editableUser).map((key, index) => (
+                    <div key={index} className="edit-form-group">
+                        <label className="edit-form-label">{key.replace(/([A-Z])/g, ' $1')}</label>
+                        <input
+                            type={key === "birthDate" ? "date" : "text"}
+                            className="edit-form-control"
+                            value={editableUser[key]}
+                            onChange={(e) => {
+                                setEditableUser({ ...editableUser, [key]: e.target.value });
+                                validateField(key);
+                            }}
+                        />
+                        {errors[key] && <small className="text-danger">{errors[key]}</small>}
                     </div>
-                )}
+                ))}
+                <div className="edit-modal-footer">
+                    <button className="edit-save-button" onClick={handleSaveUser} disabled={!isFormValid}>
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+)}
+
 
 {isInterestPointModalOpen && (
-    <div className="modal-overlay">
-        <div className="modal-content">
-            <span className="close" onClick={closeInterestPointModal}>&times;</span>
+    <div className="custom-modal-overlay">
+        <div className="custom-modal-content">
+            <span className="custom-close" onClick={closeInterestPointModal}>&times;</span>
             <h4>Select Points of Interest</h4>
-            <div className="interest-points-grid">
+            <div className="custom-interest-points-grid">
                 {interestPoints.map((point, index) => (
                     <div 
                         key={index} 
-                        className={`card point-card ${selectedPoints.includes(point.value) ? 'selected' : ''}`} 
+                        className={`custom-card custom-point-card ${selectedPoints.includes(point.value) ? 'custom-selected' : ''}`} 
                         onClick={() => handlePointSelection(point)}
                     >
-                        <div className="card-body card-body-point">
+                        <div className="custom-card-body custom-card-body-point">
                             <h5>{point.value}</h5>
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="text-end mt-3">
-                <button className="save-button" onClick={handleSaveSelection}>
+            <div className="custom-text-end custom-mt-3">
+                <button className="custom-save-button" onClick={handleSaveSelection}>
                     Save Selection
                 </button>
             </div>
         </div>
     </div>
 )}
+
 {isDeleteModalOpen && (
     <div className="modal-overlay">
         <div className="modal-content delete-modal">
