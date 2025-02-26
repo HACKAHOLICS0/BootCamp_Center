@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const twilio = require('twilio');
 const User = require('../Model/User');
-require('dotenv').config();
+require('dotenv').config(); 
 const sendEmail = require('../utils/email');
 // Check if an email exists
 const checkEmailExists = async (req, res) => {
@@ -92,6 +92,7 @@ const signin = async (req, res) => {
       // Retourner la réponse avec les informations de l'utilisateur
       res.status(200).json({
           msg: 'Login successful',
+          token,
           user: {
               id: user._id,
               name: user.name,
@@ -384,5 +385,5 @@ const forgotPasswordEmail = async (req, res) => {
 
 
   
-  module.exports = { googleTokenAuth,signup,authenticate, signin, checkEmailExists, sendVerificationCode,editUser,getUserById, verifyCode, resetPassword, resetPasswordEmail, forgotPasswordEmail };
+module.exports = { googleTokenAuth,signup,authenticate, signin, checkEmailExists, sendVerificationCode,editUser,getUserById, verifyCode, resetPassword, resetPasswordEmail, forgotPasswordEmail };
   
