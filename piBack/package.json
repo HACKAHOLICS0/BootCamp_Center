@@ -29,6 +29,6 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "piback": "file:",
-    "twilio": "^5.4.4"
+    "twilio": "^5.4.5"
   }
 }
